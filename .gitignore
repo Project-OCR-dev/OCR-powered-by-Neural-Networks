@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+
+features_map.png
+*.tmp
+
+.DS_Store
+Thumbs.db
