@@ -33,15 +33,44 @@ def convolution():
             output_array[i,j] = somme
     return output_array
 
+
+def maxpooling(arr):
+     map_h, map_l = np.shape(arr)
+     output_size = map_h // 2
+     output_array = np.zeros((output_size,output_size))
+     for i in range(output_size):
+        for j in range(output_size):
+            max =  arr[i*2, j*2]
+            for x in range(2):
+                for y in range(2):
+                        if max < arr[x+i*2,y+j*2]:
+                             max = arr[x+i*2,y+j*2]
+            output_array[i,j] = max
+     return output_array
+
 #fonction d'activation ReLU
 def relu(x):
     return np.maximum(0, x)
+
+#normalisation
+#normalisation et format necessaire au passge en image via pillow 
+#(valeur entiere entre 0 et 255, le astype converti les float en int sur 8 bit)
+
+def normalized(out):
+     return ((out - out.min()) / (out.max() - out.min()) * 255).astype('uint8') 
+
 #déclencheur du script :
+
 #affichage de la feature map générée à partir du kernel donnée 
 if __name__ == "__main__":
     output = convolution()
     output = relu(output)
-    output = ((output - output.min()) / (output.max() - output.min()) * 255).astype('uint8') #normalisation et format necessaire au passge en image via pillow 
-    output_image = Image.fromarray(output)                                                   #(valeur entiere entre 0 et 255, le astype converti les float en int sur 8 bit)
+    output_normalized = normalized(output)
+    output_image = Image.fromarray(output_normalized)                                          
     output_image.show()
     output_image.save("features_map.png")
+    output2 = maxpooling(output)
+    output2 = normalized(output2)
+    output_image2 = Image.fromarray(output2)                                          
+    output_image2.show()
+    output_image2.save("features_map2.png")
