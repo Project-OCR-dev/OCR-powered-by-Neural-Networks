@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR avec Réseau neuronal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    
+  </head>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <body>
+    <h1>🔡 Reconnaissance de Caractères OCR 🔢</h1>
+    <h2>OCR Characters Recognition System</h2>
+    
+    <div class="container">
+        <p>Uploader l'image à analyser</p>
+
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input id='inputFile'type="file" name="file" accept="image/*" required>
+            <button type="submit">Analyser</button>
+        </form>
+    </div>
+
+    <div id="preview">preview</div>
+
+    <footer>
+        <p>Créé par Mehdi KHATTAB et Jounaïd MAZNI</p>
+    </footer>
+</body>
+</html>
