@@ -1,15 +1,56 @@
+### **Python**
+venv/
+env/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-env/
-venv/
+*.so
 
-features_map.png
-*.tmp
+### **Flask**
+instance/
+.webassets-cache
 
+### **Uploads**
+```
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+### **Modèles ML**
+*.pkl
+*.pth
+*.h5
+
+### **Data**
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+
+### **Databases**
+*.db
+*.sqlite
+
+
+### **IDE**
+.vscode/
+.idea/
+*.swp
+*.swo
+
+### **OS**
 .DS_Store
 Thumbs.db
 
-data/
+### **Logs**
+*.log
+
+### **Jupyter**
+.ipynb_checkpoints/
+
+### **Tests**
+.pytest_cache/
+.coverage
+htmlcov/
