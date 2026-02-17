@@ -117,6 +117,34 @@ button:active {
     border-radius: 15px;
 }
 
+#result {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1em;
+    display: none;
+    /* Caché par défaut */
+}
+
+#result.show {
+    display: block;
+    /* Visible quand on ajoute la classe */
+}
+
+#result.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 2px solid #28a745;
+}
+
+#result.error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border: 2px solid #dc3545;
+}
+
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */

@@ -42,18 +42,18 @@ def upload_file():
         str: Message de succès ou d'erreur
     """
     if 'file' not in request.files:
-        return "Erreur : aucun fichier envoyé"
+        return "Erreur : aucun fichier envoyé", 400
 
     file = request.files['file']
 
     if file.filename == '':
-        return "Erreur : aucun fichier sélectionné"
+        return "Erreur : aucun fichier sélectionné", 400
 
     if allowed_file(file.filename):
         file.save(os.path.join('uploads', file.filename))
         return "Fichier uploadé avec succès !"
     else:
-        return "Erreur : type de fichier non autorisé !"
+        return "Erreur : type de fichier non autorisé !", 400
 
 if __name__ == '__main__':
     app.run(debug=True)
