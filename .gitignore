@@ -32,6 +32,7 @@ data/processed/*
 ### **Databases**
 *.db
 *.sqlite
+data/
 
 
 ### **IDE**
