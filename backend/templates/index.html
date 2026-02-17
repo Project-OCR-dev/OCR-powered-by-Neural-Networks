@@ -9,20 +9,21 @@
   </head>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   <body>
-    <h1>🔡 Reconnaissance de Caractères OCR 🔢</h1>
+    <h1> Reconnaissance de Caractères OCR </h1>
     <h2>OCR Characters Recognition System</h2>
     
     <div class="container">
         <p>Uploader l'image à analyser</p>
 
         <form method="POST" action="/upload" enctype="multipart/form-data">
-            <input id='inputFile'type="file" name="file" accept="image/*" required>
-            <button type="submit">Analyser</button>
+            <input id='inputFile'type="file" name="file" accept="image/*">
+            <button id='submit' type="submit">Analyser</button>
         </form>
     </div>
 
-    <div id="preview">preview</div>
-
+    <div id="preview"></div>
+    <div id="result"></div>
+  
     <footer>
         <p>Créé par Mehdi KHATTAB et Jounaïd MAZNI</p>
     </footer>
