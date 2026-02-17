@@ -14,13 +14,14 @@ function main(){
             return;
         }
         const fr = new FileReader();
+        fr.readAsDataURL(file);
         fr.onload = function(e){
             const image = document.createElement('img');
             image.src=e.target.result;
             preview.innerHTML = '';
             preview.append(image);
         };
-        fr.readAsDataURL(file);
+        
     });
 
     form.addEventListener('submit',function(evt){
