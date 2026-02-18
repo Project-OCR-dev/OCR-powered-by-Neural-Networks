@@ -13,8 +13,8 @@ instance/
 .webassets-cache
 
 ### **Uploads**
-backend/uploads/*
-!backend/uploads/.gitkeep
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
 
 ### **Modèles ML**
 *.pkl
