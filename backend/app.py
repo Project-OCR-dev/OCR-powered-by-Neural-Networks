@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request,jsonify,redirect,url_for
 import os
+import random
 
 app = Flask(__name__)
 # dossier ou sont sauvegardés les fichiers uploadé
@@ -36,10 +37,11 @@ def upload_file():
     Traite l'upload d'un fichier image.
     
     Vérifie la présence du fichier, valide son extension,
-    et le sauvegarde dans le dossier uploads/.
+    et le sauvegarde dans le dossier uploads/ puis redirige 
+    vers la page de traitement 
     
     Returns:
-        str: Message de succès ou d'erreur
+        redirection vers fonction process
     """
     if 'file' not in request.files:
         return "Erreur : aucun fichier envoyé", 400
@@ -60,6 +62,17 @@ def upload_file():
 def process(filename):
     """Affiche la page de traitement"""
     return render_template('processing.html', filename=filename)
+
+@app.route('/analyze/<filename>', methods=['POST'])
+def analyze(filename):
+    prediction = random.choice(['A', 'B', 'C', '1', '2', '3'])
+    confidence = round(random.uniform(0.8, 0.99), 2)
+    result = {
+    "prediction": "A",
+    "confidence": 0.95,
+    "steps": []
+    }
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
