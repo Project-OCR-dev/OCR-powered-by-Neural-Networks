@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,jsonify,redirect,url_for
 import os
 
 app = Flask(__name__)
 # dossier ou sont sauvegardés les fichiers uploadé
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 # liste des formats de fichiers autorisés
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -50,10 +50,16 @@ def upload_file():
         return "Erreur : aucun fichier sélectionné", 400
 
     if allowed_file(file.filename):
-        file.save(os.path.join('uploads', file.filename))
-        return "Fichier uploadé avec succès !"
+        file.save(os.path.join('static/uploads', file.filename))
+        return redirect(url_for('process',filename=file.filename))
     else:
         return "Erreur : type de fichier non autorisé !", 400
+    
+
+@app.route('/processing/<filename>')
+def process(filename):
+    """Affiche la page de traitement"""
+    return render_template('processing.html', filename=filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
