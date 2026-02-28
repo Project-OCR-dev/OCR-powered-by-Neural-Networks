@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 # liste des formats de fichiers autorisés
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+# il faudra générer une vraie clé aléatoire avant mise en production sur serveur
 app.config['SECRET_KEY'] = 'une-cle-secrete'
 
 
