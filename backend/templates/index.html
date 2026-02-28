@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     
   </head>
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  
   <body>
+    
     <h1> Reconnaissance de Caractères OCR </h1>
     <h2>OCR Characters Recognition System</h2>
     
     <div class="container">
         <p>Uploader l'image à analyser</p>
+
+
 
         <form method="POST" action="/upload" enctype="multipart/form-data">
             <input id='inputFile'type="file" name="file" accept="image/*">
@@ -21,11 +24,25 @@
         </form>
     </div>
 
+
+    <!-- MESSAGES FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
     <div id="preview"></div>
-    <div id="result"></div>
   
     <footer>
         <p>Créé par Mehdi KHATTAB et Jounaïd MAZNI</p>
     </footer>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

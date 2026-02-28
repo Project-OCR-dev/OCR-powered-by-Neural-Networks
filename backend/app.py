@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request,jsonify,redirect,url_for
+from flask import Flask, render_template, request,jsonify,redirect,url_for,flash,get_flashed_messages
 import os
 import random
 
@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 # liste des formats de fichiers autorisés
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['SECRET_KEY'] = 'une-cle-secrete'
 
 
 def allowed_file(filename):
@@ -44,18 +45,22 @@ def upload_file():
         redirection vers fonction process
     """
     if 'file' not in request.files:
-        return "Erreur : aucun fichier envoyé", 400
+        flash("Erreur : fichier non selectionné", 'error')
+        return redirect(url_for('index'))
 
     file = request.files['file']
 
     if file.filename == '':
-        return "Erreur : aucun fichier sélectionné", 400
+        flash("Erreur :  aucun fichier sélectionné", 'error')
+        return redirect(url_for('index'))
 
     if allowed_file(file.filename):
+        flash(f"{file.filename} uploadé avec succès !", 'success')
         file.save(os.path.join('static/uploads', file.filename))
         return redirect(url_for('process',filename=file.filename))
     else:
-        return "Erreur : type de fichier non autorisé !", 400
+        flash("Erreur :  type de fichier non autorisé !", 'error')
+        return redirect(url_for('index'))
     
 
 @app.route('/processing/<filename>')
@@ -63,16 +68,6 @@ def process(filename):
     """Affiche la page de traitement"""
     return render_template('processing.html', filename=filename)
 
-@app.route('/analyze/<filename>', methods=['POST'])
-def analyze(filename):
-    prediction = random.choice(['A', 'B', 'C', '1', '2', '3'])
-    confidence = round(random.uniform(0.8, 0.99), 2)
-    result = {
-    "prediction": "A",
-    "confidence": 0.95,
-    "steps": []
-    }
-    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
