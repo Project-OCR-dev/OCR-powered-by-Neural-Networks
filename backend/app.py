@@ -12,7 +12,7 @@ app.config['SECRET_KEY'] = 'une-cle-secrete'
 
 
 def allowed_file(filename):
-    """
+    """ls
     Vérifie si l'extension du fichier est autorisée.
     
     Args:
@@ -46,13 +46,13 @@ def upload_file():
         redirection vers fonction process
     """
     if 'file' not in request.files:
-        flash("Erreur : fichier non selectionné", 'error')
+        flash("Erreur : aucun fichier sélectionné", 'error')
         return redirect(url_for('index'))
 
     file = request.files['file']
 
     if file.filename == '':
-        flash("Erreur :  aucun fichier sélectionné", 'error')
+        flash("Erreur :  fichier inexistant", 'error')
         return redirect(url_for('index'))
 
     if allowed_file(file.filename):
