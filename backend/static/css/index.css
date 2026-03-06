@@ -61,7 +61,7 @@ footer p {
     margin: 0;
 }
 
-/* Form et button (gardez votre CSS existant) */
+/* Form et button */
 form {
     display: flex;
     flex-direction: column;
