@@ -69,6 +69,30 @@ def process(filename):
     """Affiche la page de traitement"""
     return render_template('processing.html', filename=filename)
 
+@app.route('/analyze/<filename>', methods=['POST'])
+def analyze(filename):
+    import random
+    
+    # données simulées - sera remplacé par le vrai modèle ML plus tard
+    prediction = random.choice(['A', 'B', 'C', 'D', 'E', '1', '2', '3', '7', '9'])
+    confidence = round(random.uniform(85, 98), 1)
+    
+    # Rediriger vers results avec les données en query parameters
+    return redirect(url_for('results', filename=filename, 
+                           prediction=prediction, 
+                           confidence=confidence))
+
+@app.route('/results/<filename>')
+def results(filename):
+    import random
+    #données simulées pour test
+    fake_prediction = random.choice(['A', 'B', 'C', '1', '7'])
+    fake_confidence = round(random.uniform(85, 98), 1)
+    """Affiche la de page de résultats"""
+    return render_template('results.html',filename=filename,
+                         prediction=fake_prediction,
+                         confidence=fake_confidence)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
