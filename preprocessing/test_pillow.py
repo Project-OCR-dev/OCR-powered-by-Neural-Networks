@@ -1,5 +1,6 @@
 from PIL import Image,ImageFilter
 import numpy as np
+import os
 
 img = Image.open('../backend/static/uploads/image_test.png')
 
@@ -16,21 +17,52 @@ print(f"  Largeur: {largeur} pixels")
 print(f"  Hauteur: {hauteur} pixels")
 
 def passageEnGris(image):
-    arr = np.array(image)
-    hauteur, largeur = arr.shape[:2]
-    largeur, longueur = image.size
-    
-    print("Mode:", img.mode)
-    totalPixels = largeur * longueur
-    #image.show()
+    imagePath = image.filename
+    nameWithExt= os.path.basename(imagePath)
+    nameWithoutExt = os.path.splitext(nameWithExt)[0]
+    print(f"nom fichier : {nameWithoutExt}")
+    ext = os.path.splitext(nameWithExt)[1]
+    print(f"extension : {ext}")
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    arrImg= np.array(image)
+    hauteur, largeur = arrImg.shape[:2]  
+    print("Mode:", image.mode)
+    totalPixels = hauteur * largeur 
+    print(f"nombre de pixels total : {totalPixels}")
+    arrGray = np.zeros((hauteur, largeur),dtype=np.uint8)
     for y in range(hauteur):
         for x in range(largeur):
-            r,g,b,a = arr[y, x] 
-            if r == 255 and g == 255 and b == 255:
-                image.putpixel(arr[y,x],(0,0,0))
-            
-    
+            r,g,b = arrImg[y,x]
+            r=int(r)
+            g=int(g)
+            b=int(b)
+            gray = (r+g+b)/3
+            gray = int(gray)
+            arrGray[y,x] = gray
+    imageResult= Image.fromarray(arrGray)
+    imageResult.save(f"./processImg/{nameWithoutExt}_gray{ext}")
+    return imageResult
 
-passageEnGris(img)
+#passageEnGris(img)
+
+def imageVersMatrice(image):
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    largeur, hauteur = image.size
+    print(f"Conversion image {largeur}×{hauteur} en matrice")
+    arrMatrice = np.zeros((hauteur, largeur,3),dtype=np.uint8)
+    for y in range(hauteur):
+        for x in range(largeur):
+            r,g,b = image.getpixel((x,y))
+            arrMatrice[y,x,0] = r
+            arrMatrice[y,x,1] = g
+            arrMatrice[y,x,2] = b
+    print(f"Matrice créée : shape {arrMatrice.shape}, dtype {arrMatrice.dtype}")
+    return arrMatrice
+
+imagef = passageEnGris(img)
+mat = imageVersMatrice(img)
+
 
         
