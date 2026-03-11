@@ -65,4 +65,13 @@ imagef = passageEnGris(img)
 mat = imageVersMatrice(img)
 
 
-        
+def nomraliserMatrice(matrice):
+    largeur, hauteur , canaux = matrice.shape
+    print(f"largeur {largeur} - hauteur {hauteur}")
+    arrNorm = np.zeros((hauteur, largeur,3),dtype=np.uint8)
+
+
+
+image = passageEnGris(img)
+mat = imageVersMatrice(img)
+nomraliserMatrice(mat)
