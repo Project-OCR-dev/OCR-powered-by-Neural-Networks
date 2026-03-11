@@ -32,9 +32,9 @@ def passageEnGris(image):
     arrImg= np.array(image)
     hauteur, largeur = arrImg.shape[:2]  
     arrGray = np.zeros((hauteur, largeur),dtype=np.uint8)
-    for y in range(hauteur):
-        for x in range(largeur):
-            r,g,b = arrImg[y,x]
+    for x in range(hauteur):
+        for y in range(largeur):
+            r,g,b = arrImg[x,y]
             r=int(r)
             g=int(g)
             b=int(b)
@@ -76,3 +76,4 @@ def imageVersMatrice(image):
             arrMatrice[y,x,1] = g
             arrMatrice[y,x,2] = b
     return arrMatrice
+
