@@ -75,12 +75,37 @@ def normaliserMatrice(matrice):
                 arrNorm[x,y,z] = matrice[x, y, z] / 255.0
     return arrNorm
 
+def decouper(image,posx,posy,hauteur,largeur):
+    matrice = imageVersMatrice(image)
+    h_source, l_source = matrice.shape[:2]
+     # Vérification
+    if (posx < 0 or posy < 0 or 
+        posx + largeur > l_source or 
+        posy + hauteur > h_source):
+        print(f"Zone invalide : dépassement des limites")
+        return None
+    matriceZone = np.zeros((hauteur,largeur,3),dtype=np.uint8)
+    for y in range(hauteur):
+        for x in range(largeur):
+            matriceZone[y,x] = matrice[y+posy,x+posx]
+    return Image.fromarray(matriceZone)
 
+# === Test des différentes fonctions ===
 
+# Découper une zone
+zone = decouper(img, posx=200, posy=100, hauteur=250, largeur=350)
+print(f"Zone découpée : {zone.size}")
+zone.show()
 
-
+# Passage en nuance de gris
 image = passageEnGris(img)
+image.show()
+
+# image pillow vers matrice numpy
 mat = imageVersMatrice(img)
 print(f"pixel : {mat[216,500]}")
+
+# normaliser la matrice (valeur entre 0 et 1)
 matnorm = normaliserMatrice(mat)
 print(f"pixel : {matnorm[216,500]}")
+
