@@ -65,13 +65,22 @@ imagef = passageEnGris(img)
 mat = imageVersMatrice(img)
 
 
-def nomraliserMatrice(matrice):
-    largeur, hauteur , canaux = matrice.shape
+def normaliserMatrice(matrice):
+    hauteur, largeur, canaux = matrice.shape
     print(f"largeur {largeur} - hauteur {hauteur}")
-    arrNorm = np.zeros((hauteur, largeur,3),dtype=np.uint8)
+    arrNorm = np.zeros((hauteur, largeur,3),dtype=np.float32)
+    for x in range(hauteur):
+        for y in range(largeur):
+            for z in range(canaux):
+                arrNorm[x,y,z] = matrice[x, y, z] / 255.0
+    return arrNorm
+
+
 
 
 
 image = passageEnGris(img)
 mat = imageVersMatrice(img)
-nomraliserMatrice(mat)
+print(f"pixel : {mat[216,500]}")
+matnorm = normaliserMatrice(mat)
+print(f"pixel : {matnorm[216,500]}")
