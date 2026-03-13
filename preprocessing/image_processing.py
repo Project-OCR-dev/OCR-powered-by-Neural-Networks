@@ -101,3 +101,34 @@ def normaliserMatrice(matrice):
                 arrNorm[x,y,z] = matrice[x, y, z] / 255.0
     return arrNorm
 
+def decouper(image,posx,posy,hauteur,largeur):
+    """
+    Découpe une zone rectangulaire d'une image from scratch.
+    
+    Args:
+        image (PIL.Image): Image source
+        posx (int): Position X du coin supérieur gauche
+        posy (int): Position Y du coin supérieur gauche
+        hauteur (int): Hauteur de la zone à extraire
+        largeur (int): Largeur de la zone à extraire
+    
+    Returns:
+        PIL.Image ou None: Zone découpée ou None si invalide
+    
+    Notes:
+        La zone ne doit pas dépasser les limites de l'image source.
+        Retourne None si la zone est invalide.
+    """
+    matrice = imageVersMatrice(image)
+    h_source, l_source = matrice.shape[:2]
+    # Vérification
+    if (posx < 0 or posy < 0 or 
+        posx + largeur > l_source or 
+        posy + hauteur > h_source):
+        print(f"Zone invalide : dépassement des limites")
+        return None
+    matriceZone = np.zeros((hauteur,largeur,3),dtype=np.uint8)
+    for y in range(hauteur):
+        for x in range(largeur):
+            matriceZone[y,x] = matrice[y+posy,x+posx]
+    return Image.fromarray(matriceZone)
