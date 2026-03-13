@@ -77,3 +77,27 @@ def imageVersMatrice(image):
             arrMatrice[y,x,2] = b
     return arrMatrice
 
+def normaliserMatrice(matrice):
+    """
+    Normalise une matrice de pixels (0-255) vers (0-1) from scratch.
+    
+    Args:
+        matrice (numpy.ndarray): Matrice shape (hauteur, largeur, 3), dtype uint8
+    
+    Returns:
+        numpy.ndarray: Matrice normalisée shape (hauteur, largeur, 3), dtype float32
+    
+    Notes:
+        Divise chaque pixel par 255.0 pour obtenir des valeurs entre 0 et 1,
+        format requis par les réseaux de neurones pour accélérer l'apprentissage et 
+        améliorer la précision des prédictions
+    """
+    hauteur, largeur, canaux = matrice.shape
+    print(f"largeur {largeur} - hauteur {hauteur}")
+    arrNorm = np.zeros((hauteur, largeur,3),dtype=np.float32)
+    for x in range(hauteur):
+        for y in range(largeur):
+            for z in range(canaux):
+                arrNorm[x,y,z] = matrice[x, y, z] / 255.0
+    return arrNorm
+
