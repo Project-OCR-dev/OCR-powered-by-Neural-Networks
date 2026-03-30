@@ -3,16 +3,6 @@ import numpy as np
 import random
 import os
 
-#ouvre l'image initial
-im = Image.open("./input/8.png")
-
-#passage en niveau de gris et affichage
-gray = im.convert('L')
-
-#conversion image en matrice numpy
-map = np.asarray(gray)
-
-
 
 #convolution
 def convolution(features_map,repetition):
@@ -51,47 +41,3 @@ def maxpooling(arr):
             output_array[i,j] = max
      return output_array
 
-#fonction d'activation ReLU
-def relu(x):
-    return np.maximum(0, x)
-
-#normalisation
-#normalisation et format necessaire au passge en image via pillow 
-#(valeur entiere entre 0 et 255, le astype converti les float en int sur 8 bit)
-
-def normalized(out):
-     return ((out - out.min()) / (out.max() - out.min()) * 255).astype('uint8') 
-
-#déclencheur du script :
-
-#affichage de la feature map générée à partir du kernel donnée 
-if __name__ == "__main__":
-    folder_path = "./output"
-    folder_path2 = "./output2"
-    # Crée le dossier s'il n'existe pas
-    os.makedirs(folder_path, exist_ok=True)
-    os.makedirs(folder_path2, exist_ok=True)
-
-    output = convolution(map,32)
-    for i in range(32):
-        fmap = relu(output[i])
-        fmap_maxpool = maxpooling(fmap)
-        fmap_normalized = normalized(fmap_maxpool)
-        fmap_image = Image.fromarray(fmap_normalized)
-        # Chemin complet pour sauvegarder l'image
-        file_path = os.path.join(folder_path, f"map{i+1}.png")
-        img = fmap_image
-        # Sauvegarde l'image
-        img.save(file_path) 
-
-    output2 = convolution(fmap_maxpool,64)
-    for i in range(64):
-        fmap2 = relu(output2[i])
-        fmap_maxpool2 = maxpooling(fmap2)
-        fmap_normalized2 = normalized(fmap_maxpool2)
-        fmap_image2 = Image.fromarray(fmap_normalized2)
-        # Chemin complet pour sauvegarder l'image
-        file_path = os.path.join(folder_path2, f"map{i+1}.png")
-        img = fmap_image2
-        # Sauvegarde l'image
-        img.save(file_path) 
