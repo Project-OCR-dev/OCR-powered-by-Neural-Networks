@@ -93,7 +93,7 @@ def decouper(image,posx,posy,hauteur,largeur):
 # === Test des différentes fonctions ===
 
 # Découper une zone
-zone = decouper(img, posx=200, posy=100, hauteur=250, largeur=350)
+zone = decouper(img, posx=200, posy=100, hauteur=32, largeur=32)
 print(f"Zone découpée : {zone.size}")
 zone.show()
 
