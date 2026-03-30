@@ -12,6 +12,10 @@ def relu(x):
 #normalisation et format necessaire au passge en image via pillow 
 #(valeur entiere entre 0 et 255, le astype converti les float en int sur 8 bit)
 
+def softmax(x):
+    e = np.exp(x - np.max(x))
+    return e / e.sum()
+
 def normalized(out):
      if out.max() == out.min():
         return np.zeros_like(out, dtype='uint8')

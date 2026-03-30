@@ -5,24 +5,37 @@ import os
 
 
 #convolution
-def convolution(features_map,repetition):
+def convolution(features_map,repetition, canaux=1):
     features_map_3D = []
-    for i in range(repetition):
+
+    for rep in range(repetition):
         #déclaration kernel
         kernel = np.array([[random.randint(-1,1),random.randint(-1,1),random.randint(-1,1)],
-                    [random.randint(-1,1),random.randint(-1,1),random.randint(-1,1)],
-                    [random.randint(-1,1),random.randint(-1,1),random.randint(-1,1)]])
+                        [random.randint(-1,1),random.randint(-1,1),random.randint(-1,1)],
+                        [random.randint(-1,1),random.randint(-1,1),random.randint(-1,1)]])
+        if canaux > 1:
+            canal = features_map[0]
+        else:
+            canal = features_map
         kernel_h, kernel_l = np.shape(kernel)
-        map_h, map_l = np.shape(features_map)
+        map_h, map_l = np.shape(canal)
         output_size = map_l - kernel_l + 1 #formule Taille_sortie après convulation = (Taille_entrée - Taille_kernel + 2×Padding) / Stride + 1
         output_array = np.zeros((output_size,output_size))
-        for i in range(output_size):
-            for j in range(output_size):
-                somme = 0
-                for x in range(kernel_l):
-                    for y in range(kernel_h):
-                            somme += kernel[x,y] * features_map[i+x,j+y]
-                output_array[i,j] = somme
+        for c in range(canaux):
+            if canaux > 1:
+                 canal = features_map[c]
+            else:
+                 canal = features_map
+            
+
+            for i in range(output_size):
+                for j in range(output_size):
+                    somme = 0
+                    for x in range(kernel_l):
+                        for y in range(kernel_h):
+                                somme += kernel[x,y] * canal[i+x,j+y]
+                    output_array[i,j] += somme
+                    
         features_map_3D.append(output_array);   
     return np.array(features_map_3D)
 
