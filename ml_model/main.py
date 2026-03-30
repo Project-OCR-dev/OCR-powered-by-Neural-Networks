@@ -26,7 +26,10 @@ def forward():
     os.makedirs(folder_path2, exist_ok=True)
 
     output = convolution(map,32)
+    all_fmap_maxpool = []
+
     for i in range(32):
+
         fmap = relu(output[i])
         fmap_maxpool = maxpooling(fmap)
         fmap_normalized = normalized(fmap_maxpool)
@@ -39,7 +42,11 @@ def forward():
         # Sauvegarde l'image
         img.save(file_path) 
 
-    output2 = convolution(fmap_normalized,64)
+        all_fmap_maxpool.append(fmap_maxpool)
+
+    all_fmap_maxpool = np.array(all_fmap_maxpool)
+    output2 = convolution(all_fmap_maxpool,64,canaux=32)
+    
     for i in range(64):
 
         fmap2 = relu(output2[i])
