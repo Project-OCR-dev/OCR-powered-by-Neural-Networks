@@ -1,6 +1,8 @@
+from torch import classes
+
 from convolution import convolution
 from convolution import maxpooling
-from utils import relu, normalized
+from utils import relu, normalized, softmax
 
 from PIL import Image
 import numpy as np
@@ -27,12 +29,15 @@ def forward():
 
     output = convolution(map,32)
     all_fmap_maxpool = []
+    all_fmap_maxpool2 = []
 
     for i in range(32):
 
         fmap = relu(output[i])
         fmap_maxpool = maxpooling(fmap)
-        fmap_normalized = normalized(fmap_maxpool)
+
+        # Normalisation de la feature map pour Pillow (0-255)
+        fmap_normalized = normalized(fmap_maxpool) 
         fmap_image = Image.fromarray(fmap_normalized)
 
         # Chemin complet pour sauvegarder l'image
@@ -61,8 +66,40 @@ def forward():
 
         # Sauvegarde l'image
         img.save(file_path) 
+        all_fmap_maxpool2.append(fmap_maxpool2)
+
+
+
+    flat = np.array(all_fmap_maxpool2).flatten()
+
+    W1 = np.random.randn(256, 2304) * 0.01
+    b1 = np.zeros(256)
+
+    W2 = np.random.randn(128, 256) * 0.01
+    b2 = np.zeros(128)
+
+    W3 = np.random.randn(62, 128) * 0.01
+    b3 = np.zeros(62)
+
+    x = relu(np.dot(W1, flat) + b1)
+    x = relu(np.dot(W2, x) + b2)
+    x = np.dot(W3, x) + b3
+
+    return x
+    
+
+def backward():
+    pass
+
+
+def predict(x):
+    x = softmax(x)
+    classes = np.array(list("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"))
+    pred = classes[np.argmax(x)]
+    print(f"la lettre prédite est : {pred}")
 
 
 #déclencheur du script :
 if __name__ == "__main__":
-    forward()
+    proba = forward()
+    predict(proba)
