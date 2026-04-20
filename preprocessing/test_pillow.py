@@ -2,7 +2,7 @@ from PIL import Image,ImageFilter
 import numpy as np
 import os
 
-img = Image.open('../backend/static/uploads/image_test.png')
+img = Image.open('../backend/static/uploads/img_test.png')
 
 # Afficher les informations
 print("=== INFORMATIONS DE L'IMAGE ===")
@@ -17,12 +17,6 @@ print(f"  Largeur: {largeur} pixels")
 print(f"  Hauteur: {hauteur} pixels")
 
 def passageEnGris(image):
-    imagePath = image.filename
-    nameWithExt= os.path.basename(imagePath)
-    nameWithoutExt = os.path.splitext(nameWithExt)[0]
-    print(f"nom fichier : {nameWithoutExt}")
-    ext = os.path.splitext(nameWithExt)[1]
-    print(f"extension : {ext}")
     if image.mode != 'RGB':
         image = image.convert('RGB')
     arrImg= np.array(image)
@@ -41,7 +35,6 @@ def passageEnGris(image):
             gray = int(gray)
             arrGray[y,x] = gray
     imageResult= Image.fromarray(arrGray)
-    imageResult.save(f"./processImg/{nameWithoutExt}_gray{ext}")
     return imageResult
 
 #passageEnGris(img)
@@ -90,15 +83,46 @@ def decouper(image,posx,posy,hauteur,largeur):
             matriceZone[y,x] = matrice[y+posy,x+posx]
     return Image.fromarray(matriceZone)
 
+def redimensionner(image, taille=(32,32)):
+    largeur_dest, hauteur_dest = taille
+    matrice_src = imageVersMatrice(image)
+    hauteur_src,largeur_src = matrice_src.shape[:2]
+    matrice_dest = np.zeros((hauteur_dest,largeur_dest,3), dtype=np.uint8)
+    ratio_x = largeur_src / largeur_dest
+    ratio_y = hauteur_src / hauteur_dest
+    for x in range(largeur_dest):
+        for y in range(hauteur_dest):
+            x_calc = int(x * ratio_x)
+            y_calc = int(y * ratio_y)
+            matrice_dest[y, x] = matrice_src[y_calc, x_calc]
+    return Image.fromarray(matrice_dest)    
+
+def preprocess_pour_ocr(image,taille=(32,32)):
+    return normaliserMatrice(
+        imageVersMatrice(
+            redimensionner(
+                passageEnGris(image),
+                taille=taille
+            )
+        )
+    )
+
+
+
 # === Test des différentes fonctions ===
 
 # Découper une zone
-zone = decouper(img, posx=200, posy=100, hauteur=32, largeur=32)
+zone = decouper(img, posx=60, posy=50, hauteur=230, largeur=280)
 print(f"Zone découpée : {zone.size}")
 zone.show()
 
+# Redimensionner une image en. 32x32
+image_red = redimensionner(zone,taille=(32,32))
+image_red.show()
+
+
 # Passage en nuance de gris
-image = passageEnGris(img)
+image = passageEnGris(image_red)
 image.show()
 
 # image pillow vers matrice numpy
@@ -108,4 +132,17 @@ print(f"pixel : {mat[216,500]}")
 # normaliser la matrice (valeur entre 0 et 1)
 matnorm = normaliserMatrice(mat)
 print(f"pixel : {matnorm[216,500]}")
+
+
+# Test complet
+print("=== TEST PIPELINE ===")
+print(f"Image originale : {img.size}, mode : {img.mode}")
+
+matrice = preprocess_pour_ocr(img)
+
+print(f" Shape : {matrice.shape}")
+print(f" Type : {matrice.dtype}")
+print(f" Min : {matrice.min():.3f}")
+print(f" Max : {matrice.max():.3f}")
+print(f" Prête pour ML : OUI")
 

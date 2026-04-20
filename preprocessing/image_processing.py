@@ -13,20 +13,11 @@ def passageEnGris(image):
     Args:
         image (PIL.Image ou str): Image Pillow en mode RGB ou chemin vers l'image.
                                   Si l'image n'est pas en RGB, elle sera convertie.
-        sauvegarder (bool, optional): Si True, sauvegarde l'image résultante dans
-                                       le dossier './processImg/'. Par défaut True.
     
     Returns:
         PIL.Image: Image en niveaux de gris, valeurs de 0 à 255.
     
     """
-    img = Image.open(f"../backend/static/uploads/{image}")
-    imagePath = image.filename
-    nameWithExt= os.path.basename(imagePath)
-    nameWithoutExt = os.path.splitext(nameWithExt)[0]
-    print(f"nom fichier : {nameWithoutExt}")
-    ext = os.path.splitext(nameWithExt)[1]
-    print(f"extension : {ext}")
     if image.mode != 'RGB':
         image = image.convert('RGB')
     arrImg= np.array(image)
@@ -41,9 +32,8 @@ def passageEnGris(image):
             gray = (r+g+b)/3
             gray = int(gray)
             arrGray[y,x] = gray
-    imageResult= Image.fromarray(arrGray)
-    imageResult.save(f"./processImg/{nameWithoutExt}_gray{ext}")
-    return imageResult
+    return Image.fromarray(arrGray)
+     
 
 def imageVersMatrice(image):
     """
@@ -132,3 +122,58 @@ def decouper(image,posx,posy,hauteur,largeur):
         for x in range(largeur):
             matriceZone[y,x] = matrice[y+posy,x+posx]
     return Image.fromarray(matriceZone)
+
+def redimensionner(image, taille=(32,32)):
+    """
+    Redimensionne une image à la taille spécifiée from scratch.
+    Utilise l'algorithme Nearest Neighbor (plus proche voisin).
+    
+    Pour chaque pixel de l'image destination, calcule quelle position
+    il représente dans l'image source et copie le pixel le plus proche.
+    
+    Args:
+        image (PIL.Image): Image source
+        taille (tuple): (largeur, hauteur) de destination, par défaut (32, 32)
+    
+    Returns:
+        Image redimensionnée à la taille spécifiée
+    
+    Notes:
+        - Algorithme : Nearest Neighbor (rapide mais pixelisé si agrandissement)
+        - Pour chaque pixel destination, prend le pixel source le plus proche
+        - Ratio calculé : largeur_source / largeur_destination
+        - Utilise NumPy pour manipuler les matrices de pixels
+        - La fonction construit la nouvelle image from scratch avec des boucles
+      
+    """
+    largeur_dest, hauteur_dest = taille
+    matrice_src = imageVersMatrice(image)
+    hauteur_src,largeur_src = matrice_src.shape[:2]
+    if len(matrice_src.shape) == 2:
+        matrice_dest = np.zeros((hauteur_dest, largeur_dest), dtype=np.uint8)
+    else:
+        nb_canaux = matrice_src.shape[2]
+        matrice_dest = np.zeros((hauteur_dest, largeur_dest, nb_canaux), dtype=np.uint8)
+    ratio_x = largeur_src / largeur_dest
+    ratio_y = hauteur_src / hauteur_dest
+    for x in range(largeur_dest):
+        for y in range(hauteur_dest):
+            x_calc = int(x * ratio_x)
+            y_calc = int(y * ratio_y)
+            matrice_dest[y, x] = matrice_src[y_calc, x_calc]
+    return Image.fromarray(matrice_dest)    
+
+
+#============== FONCTION PIPELINE COMPLET POUR PREPROCESS ================
+
+def preprocess_pour_ocr(image,taille=(32,32)):
+    return normaliserMatrice(
+        imageVersMatrice(
+            redimensionner(
+                passageEnGris(image),
+                taille=taille
+            )
+        )
+    )
+
+

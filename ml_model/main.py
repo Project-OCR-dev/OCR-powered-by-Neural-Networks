@@ -1,6 +1,8 @@
 from convolution import convolution
 from convolution import maxpooling
 from utils import relu, normalized
+from preprocessing.image_processi
+ng import passageEnGris
 
 from PIL import Image
 import numpy as np
@@ -13,7 +15,7 @@ import os
 im = Image.open("./input/8.png")
 
 #passage en niveau de gris et affichage
-gray = im.convert('L')
+gray = passageEnGris(im)
 
 #conversion image en matrice numpy
 map = np.asarray(gray)
