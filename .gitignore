@@ -55,3 +55,5 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+ml_models/dataset/
