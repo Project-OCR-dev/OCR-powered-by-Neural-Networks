@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # OCR-powered-by-Neural-Networks
 
 [🇫🇷 Version française](#version-française) | [🇬🇧 English version](#english-version)
@@ -173,5 +171,3 @@ Ce projet adopte une approche **"from scratch"** pour :
 - **Jounaïd MAZNI** - Machine Learning (Réseau de neurones, Entraînement)
 
 **Statut :** En développement actif
-
-> > > > > > > 2d26eec2590a3031c0b78cf779126bbec0a697d2
