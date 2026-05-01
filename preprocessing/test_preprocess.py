@@ -110,6 +110,10 @@ def redimensionner(image, taille=(32,32)):
             matrice_dest[y, x] = matrice_src[y_calc, x_calc]
     return Image.fromarray(matrice_dest)
 
+# ============================================
+# BINARISATION
+# ============================================
+
 def calculerSeuilOptimal(matrice):
     # Méthode Otsu #
 
@@ -177,6 +181,47 @@ def binariser(matrice, seuil=None):
             else:
                 matrice_bin[y, x] = 0    # Noir (texte)
     return matrice_bin
+
+# ============================================
+# SEGMENTATION
+# ============================================
+
+def projectionVerticale(matrice):
+    hauteur, largeur = matrice.shape
+    projection = []
+    
+    # Pour chaque colonne
+    for x in range(largeur):
+        compteur = 0
+        
+        # Compter les pixels noirs dans cette colonne
+        for y in range(hauteur):
+            if matrice[y, x] == 0:  # Pixel noir
+                compteur += 1
+        
+        projection.append(compteur)
+
+    return projection
+
+def projectionHorizontale(matrice, x_debut, x_fin):
+    hauteur, largeur = matrice.shape
+    projection = []
+    
+    # Pour chaque colonne
+    for x in range(hauteur):
+        compteur = 0
+        
+        # Compter les pixels noirs dans cette colonne
+        for x in range(x_debut, x_fin):
+            if matrice[y, x] == 0:  # Pixel noir
+                compteur += 1
+        
+        projection.append(compteur)
+
+    return projection
+
+
+
 
 #pipeline temporaire en attendant la segmentation
 def preprocess_pour_ocr(image,taille=(32,32)):
