@@ -1,15 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request,jsonify,redirect,url_for,flash,get_flashed_messages
 import os
+import random
 
 app = Flask(__name__)
 # dossier ou sont sauvegardés les fichiers uploadé
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 # liste des formats de fichiers autorisés
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+# il faudra générer une vraie clé aléatoire avant mise en production sur serveur
+app.config['SECRET_KEY'] = 'une-cle-secrete'
 
 
 def allowed_file(filename):
-    """
+    """ls
     Vérifie si l'extension du fichier est autorisée.
     
     Args:
@@ -36,24 +39,60 @@ def upload_file():
     Traite l'upload d'un fichier image.
     
     Vérifie la présence du fichier, valide son extension,
-    et le sauvegarde dans le dossier uploads/.
+    et le sauvegarde dans le dossier uploads/ puis redirige 
+    vers la page de traitement 
     
     Returns:
-        str: Message de succès ou d'erreur
+        redirection vers fonction process
     """
     if 'file' not in request.files:
-        return "Erreur : aucun fichier envoyé", 400
+        flash("Erreur : aucun fichier sélectionné", 'error')
+        return redirect(url_for('index'))
 
     file = request.files['file']
 
     if file.filename == '':
-        return "Erreur : aucun fichier sélectionné", 400
+        flash("Erreur :  fichier inexistant", 'error')
+        return redirect(url_for('index'))
 
     if allowed_file(file.filename):
-        file.save(os.path.join('uploads', file.filename))
-        return "Fichier uploadé avec succès !"
+        flash(f"{file.filename} uploadé avec succès !", 'success')
+        file.save(os.path.join('static/uploads', file.filename))
+        return redirect(url_for('process',filename=file.filename))
     else:
-        return "Erreur : type de fichier non autorisé !", 400
+        flash("Erreur :  type de fichier non autorisé !", 'error')
+        return redirect(url_for('index'))
+    
+
+@app.route('/processing/<filename>')
+def process(filename):
+    """Affiche la page de traitement"""
+    return render_template('processing.html', filename=filename)
+
+@app.route('/analyze/<filename>', methods=['POST'])
+def analyze(filename):
+    import random
+    
+    # données simulées - sera remplacé par le vrai modèle ML plus tard
+    prediction = random.choice(['A', 'B', 'C', 'D', 'E', '1', '2', '3', '7', '9'])
+    confidence = round(random.uniform(85, 98), 1)
+    
+    # Rediriger vers results avec les données en query parameters
+    return redirect(url_for('results', filename=filename, 
+                           prediction=prediction, 
+                           confidence=confidence))
+
+@app.route('/results/<filename>')
+def results(filename):
+    import random
+    #données simulées pour test
+    fake_prediction = random.choice(['A', 'B', 'C', '1', '7'])
+    fake_confidence = round(random.uniform(85, 98), 1)
+    """Affiche la de page de résultats"""
+    return render_template('results.html',filename=filename,
+                         prediction=fake_prediction,
+                         confidence=fake_confidence)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

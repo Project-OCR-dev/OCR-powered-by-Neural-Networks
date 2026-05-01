@@ -25,7 +25,7 @@ function main(){
     });
 
     form.addEventListener('submit',function(evt){
-        evt.preventDefault();
+        /*evt.preventDefault();
         afficherResultat();
        /*fetch('upload', {
             method: 'POST',

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats OCR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/results.css') }}" />
+</head>
+<body>
+    <header>
+        <h1>Résultats de l'analyse</h1>
+    </header>
+    
+    <div class="container">
+        <div id="image">
+            <h2>Analyse de : {{ filename }}</h2>
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}" 
+                 alt="Image analysée">
+        </div>
+        
+        <div id="prediction">
+            <h2>Résultats : {{ prediction }}</h2>
+            <h2>Confiance : {{ confidence }}%</h2>
+            <a href="{{ url_for('index') }}" id="retourIndexBtn">
+                Analyser une autre image
+            </a>
+        </div>
+    </div>
+</body>
+</html>

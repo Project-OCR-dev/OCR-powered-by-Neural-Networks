@@ -12,7 +12,7 @@ body {
 /* Titres hors container */
 h1 {
     font-size: 3em;
-    color: white;
+    color: #2a5298;
     text-align: center;
     margin-bottom: 10px;
     text-shadow: 3px 3px 15px rgba(0, 0, 0, 0.5);
@@ -21,7 +21,7 @@ h1 {
 
 h2 {
     font-size: 1.5em;
-    color: rgba(255, 255, 255, 0.9);
+    color: #1e3c72;
     text-align: center;
     margin-bottom: 30px;
     text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
@@ -105,44 +105,26 @@ button:active {
     transform: translateY(-1px);
 }
 
-#preview {
-    margin: 25px 0;
 
-}
-
-#preview img {
+img {
+    justify-content: center;
     max-width: 500px;
     max-height: 500px;
     object-fit: contain;
     border-radius: 15px;
+    margin: 30px;
 }
 
-#result {
-    margin-top: 25px;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.1em;
-    display: none;
-    /* Caché par défaut */
-}
-
-#result.show {
-    display: block;
-    /* Visible quand on ajoute la classe */
-}
-
-#result.success {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    color: #155724;
-    border: 2px solid #28a745;
-}
-
-#result.error {
+.flash.error {
     background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
     color: #721c24;
     border: 2px solid #dc3545;
+}
+
+.flash.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 2px solid #28a745;
 }
 
 /* ============================================
@@ -223,7 +205,7 @@ button:active {
         font-size: 1em;
     }
 
-    #preview img {
+    img {
         padding: 20px;
         max-width: 300px;
         max-height: 300px;
