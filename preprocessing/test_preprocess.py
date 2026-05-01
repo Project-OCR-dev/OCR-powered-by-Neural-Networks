@@ -180,37 +180,36 @@ def binariser(matrice, seuil=None):
 
 #pipeline temporaire en attendant la segmentation
 def preprocess_pour_ocr(image,taille=(32,32)):
-    return normaliserMatrice(
-        imageVersMatrice(
-            redimensionner(
-                decouper(
-                    passageEnGris(image), posx=120 , posy=50, hauteur=230, largeur=280),
-                taille=taille
-            )
-        )
-    )
+    # 1. Image RGB → Grayscale (Image Pillow)
+    img_gray = passageEnGris(image)
+    # 2. Image → Matrice (NumPy)
+    matrice_gray = imageVersMatrice(img_gray)
+    # 3. Binarisation Otsu (Matrice NumPy)
+    matrice_bin = binariser(matrice_gray)
+    # 4. Matrice → Image (pour découper)
+    img_bin = Image.fromarray(matrice_bin)
+    # 5. Découper (Image Pillow)
+    lettre = decouper(img_bin, posx=440 , posy=30, hauteur=350, largeur=280)
+    # 6. Redimensionner (Image Pillow)
+    img_resized = redimensionner(lettre, taille=taille)
+    img_resized.show()
+    # 7. Convertir en matrice (NumPy)
+    matrice = imageVersMatrice(img_resized)
+    # 8. Normaliser (NumPy)
+    matrice_norm = normaliserMatrice(matrice)
+    return matrice_norm
+    
 
 
 
 # === Test des différentes fonctions ===
 
-# Charger et convertir en grayscale
+
 img = Image.open('../backend/static/uploads/img_test2.png')
-img_gray = passageEnGris(img)
-img_gray.show()
-matrice = imageVersMatrice(img_gray)
+lettre = decouper(img, posx=440 , posy=30, hauteur=350, largeur=280)
+lettre.show()
+lettref=preprocess_pour_ocr(img)
 
-print(f"Avant binarisation : min={matrice.min()}, max={matrice.max()}")
-
-# Binariser
-matrice_bin = binariser(matrice)
-
-print(f"Après binarisation : min={matrice_bin.min()}, max={matrice_bin.max()}")
-print(f"Valeurs uniques : {np.unique(matrice_bin)}")
-
-# Visualiser
-img_bin = Image.fromarray(matrice_bin)
-img_bin.show()
 
 
 
