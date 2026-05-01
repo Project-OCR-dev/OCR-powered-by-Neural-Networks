@@ -180,13 +180,13 @@ def binariser(matrice, seuil=None):
 
 #pipeline temporaire en attendant la segmentation
 def preprocess_pour_ocr(image,taille=(32,32)):
-    # 1. Image RGB → Grayscale (Image Pillow)
+    # 1. Image RGB -> Grayscale (Image Pillow)
     img_gray = passageEnGris(image)
-    # 2. Image → Matrice (NumPy)
+    # 2. Image -> Matrice (NumPy)
     matrice_gray = imageVersMatrice(img_gray)
     # 3. Binarisation Otsu (Matrice NumPy)
     matrice_bin = binariser(matrice_gray)
-    # 4. Matrice → Image (pour découper)
+    # 4. Matrice -> Image (pour découper)
     img_bin = Image.fromarray(matrice_bin)
     # 5. Découper (Image Pillow)
     lettre = decouper(img_bin, posx=440 , posy=30, hauteur=350, largeur=280)
