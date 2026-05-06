@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 
 params = {
     "K1": np.random.randn(32, 1, 3, 3) * 0.01,
@@ -11,38 +12,49 @@ params = {
     "b3": np.zeros(62),
 }
 
-def convolution(features_map, repetition, kernels, canaux=1):
-    features_map_3D = []
-    for rep in range(repetition):
-        canal = features_map[0] if canaux > 1 else features_map
-        map_h, map_l = np.shape(canal)
-        kernel_size = kernels[rep][0].shape[0]
-        output_size = map_l - kernel_size + 1
-        output_array = np.zeros((output_size, output_size))
-        for c in range(canaux):
-            canal = features_map[c] if canaux > 1 else features_map
-            kernel = kernels[rep][c]
-            for i in range(output_size):
-                for j in range(output_size):
-                    somme = 0
-                    for x in range(kernel_size):
-                        for y in range(kernel_size):
-                            somme += kernel[x, y] * canal[i+x, j+y]
-                    output_array[i, j] += somme
-        features_map_3D.append(output_array)
-    return np.array(features_map_3D)
+def im2col(x, k):
+    B, C, H, W = x.shape
+    Ho, Wo = H - k + 1, W - k + 1
+    s = x.strides
+    return np.ascontiguousarray(
+        as_strided(x, (B, Ho, Wo, C, k, k), (s[0], s[2], s[3], s[1], s[2], s[3]))
+        .reshape(B, Ho * Wo, C * k * k)
+    )
 
+def col2im(dc, shape, k):
+    B, C, H, W = shape
+    Ho, Wo = H - k + 1, W - k + 1
+    dx = np.zeros(shape)
+    dc_r = dc.reshape(B, Ho, Wo, C, k, k)
+    for di in range(k):
+        for dj in range(k):
+            dx[:, :, di:di+Ho, dj:dj+Wo] += dc_r[:, :, :, :, di, dj].transpose(0, 3, 1, 2)
+    return dx
 
-def maxpooling(arr):
-    map_h, map_l = np.shape(arr)
-    output_size = map_h // 2
-    output_array = np.zeros((output_size, output_size))
-    for i in range(output_size):
-        for j in range(output_size):
-            max = arr[i*2, j*2]
-            for x in range(2):
-                for y in range(2):
-                    if max < arr[x+i*2, y+j*2]:
-                        max = arr[x+i*2, y+j*2]
-            output_array[i, j] = max
-    return output_array
+def conv_fwd(x, K):
+    B, _, H, W = x.shape
+    Co, _, k, _ = K.shape
+    Ho, Wo = H - k + 1, W - k + 1
+    cols = im2col(x, k)
+    return (cols @ K.reshape(Co, -1).T).transpose(0, 2, 1).reshape(B, Co, Ho, Wo), cols
+
+def conv_bwd(dout, cols, K, x_shape, k):
+    B, Co, Ho, Wo = dout.shape
+    Ci = K.shape[1]
+    d = dout.transpose(0, 2, 3, 1).reshape(-1, Co)
+    dK = (d.T @ cols.reshape(-1, Ci * k * k)).reshape(K.shape)
+    dx = col2im((d @ K.reshape(Co, -1)).reshape(B, Ho * Wo, Ci * k * k), x_shape, k)
+    return dK, dx
+
+def pool_fwd(x):
+    B, C, H, W = x.shape
+    H2, W2 = H // 2, W // 2
+    xc = x[:, :, :H2*2, :W2*2]
+    return xc.reshape(B, C, H2, 2, W2, 2).max(axis=(3, 5)), xc
+
+def pool_bwd(dout, xc):
+    B, C, H2, W2 = dout.shape
+    xr = xc.reshape(B, C, H2, 2, W2, 2)
+    mask = xr == xr.max(axis=(3, 5), keepdims=True)
+    mask = mask / np.maximum(1, mask.sum(axis=(3, 5), keepdims=True))
+    return (mask * dout[:, :, :, np.newaxis, :, np.newaxis]).reshape(B, C, H2*2, W2*2)

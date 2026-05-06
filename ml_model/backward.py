@@ -1,61 +1,29 @@
-
-from convolution import params
-from scipy.signal import correlate2d
 import numpy as np
+from convolution import conv_bwd, pool_bwd, params
 
-def backward(proba, y, x1, x2, flat, entree_conv1, entree_conv2, sortie_conv1, sortie_conv2, lr=0.001):
+def backward(z3, h1, h2, flat, x, c1, a1, xc1, col1, p1, c2, a2, xc2, col2, y, lr=0.001):
+    B = z3.shape[0]
+    e = np.exp(z3 - z3.max(1, keepdims=True))
+    proba = e / e.sum(1, keepdims=True)
+    loss = -np.sum(y * np.log(proba + 1e-9)) / B
 
-    dL_dZ3 = proba - y
-    dL_dW3 = np.outer(dL_dZ3, x2)
-    dL_db3 = dL_dZ3
+    dZ3 = (proba - y) / B
+    dW3, db3 = dZ3.T @ h2, dZ3.sum(0)
+    dZ2 = (dZ3 @ params["W3"]) * (h2 > 0)
+    dW2, db2 = dZ2.T @ h1, dZ2.sum(0)
+    dZ1 = (dZ2 @ params["W2"]) * (h1 > 0)
+    dW1, db1 = dZ1.T @ flat, dZ1.sum(0)
 
-    dL_dx2 = np.dot(params["W3"].T, dL_dZ3)
-    dL_dZ2 = dL_dx2 * (x2 > 0)
-    dL_dW2 = np.outer(dL_dZ2, x1)
-    dL_db2 = dL_dZ2
+    dp2 = (dZ1 @ params["W1"]).reshape(B, 64, 6, 6)
+    da2c = pool_bwd(dp2, xc2)
+    da2 = np.zeros_like(c2)
+    da2[:, :, :da2c.shape[2], :da2c.shape[3]] = da2c
+    dK2, dp1 = conv_bwd(da2 * (c2 > 0), col2, params["K2"], p1.shape, 3)
 
-    dL_dx1 = np.dot(params["W2"].T, dL_dZ2)
-    dL_dZ1 = dL_dx1 * (x1 > 0)
-    dL_dW1 = np.outer(dL_dZ1, flat)
-    dL_db1 = dL_dZ1
+    da1 = pool_bwd(dp1, xc1)
+    dK1, _ = conv_bwd(da1 * (c1 > 0), col1, params["K1"], x.shape, 3)
 
-    dL_dK2 = np.zeros_like(params["K2"])
-    dL_dFlat = np.dot(params["W1"].T, dL_dZ1)
-    dL_dFmap2 = dL_dFlat.reshape(64, 6, 6)
-
-    dL_dSortie_conv2 = np.zeros(sortie_conv2.shape)
-    for f in range(64):
-        for i in range(6):
-            for j in range(6):
-                dL_dSortie_conv2[f, i*2, j*2] = dL_dFmap2[f, i, j]
-
-    for rep in range(64):
-        for c in range(32):
-            dL_dK2[rep, c] += correlate2d(entree_conv2[c], dL_dSortie_conv2[rep], mode='valid')
-
-    dL_dK1 = np.zeros_like(params["K1"])
-    dL_dEntree_conv2 = np.zeros(entree_conv2.shape)
-
-    for rep in range(64):
-        for c in range(32):
-            dL_dEntree_conv2[c] += correlate2d(dL_dSortie_conv2[rep], params["K2"][rep,c], mode='full')
-
-    dL_dSortie_conv1 = np.zeros(sortie_conv1.shape)
-    for f in range(32):
-        for i in range(15):
-            for j in range(15):
-                dL_dSortie_conv1[f, i*2, j*2] = dL_dEntree_conv2[f, i, j]
-
-    dL_dSortie_conv1 = dL_dSortie_conv1 * (sortie_conv1 > 0)
-
-    for rep in range(32):
-        dL_dK1[rep, 0] += correlate2d(entree_conv1, dL_dSortie_conv1[rep], mode='valid')
-
-    params["W3"] -= lr * dL_dW3
-    params["b3"] -= lr * dL_db3
-    params["W2"] -= lr * dL_dW2
-    params["b2"] -= lr * dL_db2
-    params["W1"] -= lr * dL_dW1
-    params["b1"] -= lr * dL_db1
-    params["K2"] -= lr * dL_dK2
-    params["K1"] -= lr * dL_dK1
+    for k, g in [("W3",dW3),("b3",db3),("W2",dW2),("b2",db2),
+                 ("W1",dW1),("b1",db1),("K2",dK2),("K1",dK1)]:
+        params[k] -= lr * g
+    return loss

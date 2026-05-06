@@ -1,32 +1,17 @@
-from convolution import convolution, maxpooling
-from utils import relu, softmax
-from convolution import params
-from PIL import Image
 import numpy as np
+from convolution import conv_fwd, pool_fwd, params
 
-
-def forward(map):
-    output = convolution(map, 32, params["K1"])
-    all_fmap_maxpool = []
-    all_fmap_maxpool2 = []
-
-    for i in range(32):
-        fmap = relu(output[i])
-        fmap_maxpool = maxpooling(fmap)
-        all_fmap_maxpool.append(fmap_maxpool)
-
-    all_fmap_maxpool = np.array(all_fmap_maxpool)
-    output2 = convolution(all_fmap_maxpool, 64, params["K2"], canaux=32)
-
-    for i in range(64):
-        fmap2 = relu(output2[i])
-        fmap_maxpool2 = maxpooling(fmap2)
-        all_fmap_maxpool2.append(fmap_maxpool2)
-
-    flat = np.array(all_fmap_maxpool2).flatten()
-
-    x1 = relu(np.dot(params["W1"], flat) + params["b1"])
-    x2 = relu(np.dot(params["W2"], x1) + params["b2"])
-    x3 = np.dot(params["W3"], x2) + params["b3"]
-
-    return x3, x1, x2, flat, map, output, all_fmap_maxpool, output2
+def forward(imgs):
+    B = imgs.shape[0]
+    x = imgs[:, np.newaxis]
+    c1, col1 = conv_fwd(x, params["K1"])
+    a1 = np.maximum(0, c1)
+    p1, xc1 = pool_fwd(a1)
+    c2, col2 = conv_fwd(p1, params["K2"])
+    a2 = np.maximum(0, c2)
+    p2, xc2 = pool_fwd(a2)
+    flat = p2.reshape(B, -1)
+    h1 = np.maximum(0, flat @ params["W1"].T + params["b1"])
+    h2 = np.maximum(0, h1 @ params["W2"].T + params["b2"])
+    z3 = h2 @ params["W3"].T + params["b3"]
+    return z3, h1, h2, flat, x, c1, a1, xc1, col1, p1, c2, a2, xc2, col2
