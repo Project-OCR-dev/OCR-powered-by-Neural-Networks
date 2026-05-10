@@ -30,10 +30,14 @@ pip install -r requirements.txt
 
 ## Lancer l'entraînement
 
-```bash
+```powershell
 python main.py        # Windows
+```
+
+```bash
 python3 main.py       # Linux / macOS
 ```
+
 
 ---
 
@@ -45,7 +49,7 @@ ml_model/
 ├── forward.py       # Passe avant
 ├── backward.py      # Rétropropagation + mise à jour des poids
 ├── convolution.py   # Convolution, MaxPooling, initialisation des poids
-├── utils.py         # relu, softmax, cross_entropy, one_hot, chargement dataset
+├── utils.py         # softmax, one_hot, chargement dataset
 ├── test.py          # Inférence sur une image
 └── requirements.txt
 ```

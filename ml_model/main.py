@@ -8,13 +8,31 @@ from backward import backward
 from utils import load_dataset, one_hot, CLASSES
 
 BATCH_SIZE = 32
-EPOCHS = 5
-LR = 0.001
+EPOCHS = 30
+LR = 0.003
+LOG_EVERY = 10  # affiche la loss tous les N batches
 
-if os.path.exists("params_trained.pkl"):
+
+def _find_latest_checkpoint():
+    files = [f for f in os.listdir(".") if f.startswith("params_epoch_") and f.endswith(".pkl")]
+    if not files:
+        return None, 0
+    latest = max(files, key=lambda f: int(f.split("_")[2].split(".")[0]))
+    return latest, int(latest.split("_")[2].split(".")[0])
+
+
+_ckpt, START_EPOCH = _find_latest_checkpoint()
+if _ckpt:
+    with open(_ckpt, "rb") as f:
+        params.update(pickle.load(f))
+    print(f"Reprise depuis {_ckpt} (epoch {START_EPOCH})")
+elif os.path.exists("params_trained.pkl"):
     with open("params_trained.pkl", "rb") as f:
         params.update(pickle.load(f))
-    print("Poids chargés")
+    START_EPOCH = 0
+    print("Poids chargés depuis params_trained.pkl")
+else:
+    START_EPOCH = 0
 
 
 def step(bx, by):
@@ -29,14 +47,18 @@ async def _prefetch(queue, images, labels):
     await queue.put(None)
 
 
-async def train_epoch(images, labels):
+async def train_epoch(images, labels, epoch):
     queue = asyncio.Queue(maxsize=8)
+    n_batches = (len(images) + BATCH_SIZE - 1) // BATCH_SIZE
     asyncio.create_task(_prefetch(queue, images, labels))
     total, n = 0.0, 0
     while (batch := await queue.get()) is not None:
         loss = await asyncio.to_thread(step, *batch)
         total += loss
         n += 1
+        if n % LOG_EVERY == 0:
+            print(f"\rEpoch {epoch+1}  batch {n}/{n_batches}  loss={total/n:.4f}", end="", flush=True)
+    print()  # saut de ligne après la barre de progression
     return total / n
 
 
@@ -51,11 +73,14 @@ def predict_image(path):
 
 async def main():
     images, labels = load_dataset("train")
-    for epoch in range(EPOCHS):
-        loss = await train_epoch(images, labels)
-        print(f"Epoch {epoch+1}  loss={loss:.4f}")
-        with open(f"params_epoch_{epoch+1}.pkl", "wb") as f:
-            pickle.dump(dict(params), f)
+    for epoch in range(START_EPOCH, EPOCHS):
+        loss = await train_epoch(images, labels, epoch)
+        print(f"Epoch {epoch+1}/{EPOCHS}  loss finale={loss:.4f}")
+        if (epoch + 1) % 5 == 0:
+            path = f"params_epoch_{epoch+1}.pkl"
+            with open(path, "wb") as f:
+                pickle.dump(dict(params), f)
+            print(f"  -> Checkpoint : {path}")
 
 
 if __name__ == "__main__":

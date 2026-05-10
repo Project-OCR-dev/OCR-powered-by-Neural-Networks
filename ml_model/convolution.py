@@ -2,13 +2,13 @@ import numpy as np
 from numpy.lib.stride_tricks import as_strided
 
 params = {
-    "K1": np.random.randn(32, 1, 3, 3) * 0.01,
-    "K2": np.random.randn(64, 32, 3, 3) * 0.01,
-    "W1": np.random.randn(256, 2304) * 0.01,
+    "K1": np.random.randn(32, 1, 3, 3) * np.sqrt(2 / (1 * 3 * 3)),
+    "K2": np.random.randn(64, 32, 3, 3) * np.sqrt(2 / (32 * 3 * 3)),
+    "W1": np.random.randn(256, 2304) * np.sqrt(2 / 2304),
     "b1": np.zeros(256),
-    "W2": np.random.randn(128, 256) * 0.01,
+    "W2": np.random.randn(128, 256) * np.sqrt(2 / 256),
     "b2": np.zeros(128),
-    "W3": np.random.randn(62, 128) * 0.01,
+    "W3": np.random.randn(62, 128) * np.sqrt(2 / 128),
     "b3": np.zeros(62),
 }
 
