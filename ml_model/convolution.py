@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import correlate2d
 
 params = {
     "K1": np.random.randn(32, 1, 3, 3) * 0.01,
@@ -22,13 +23,7 @@ def convolution(features_map, repetition, kernels, canaux=1):
         for c in range(canaux):
             canal = features_map[c] if canaux > 1 else features_map
             kernel = kernels[rep][c]
-            for i in range(output_size):
-                for j in range(output_size):
-                    somme = 0
-                    for x in range(kernel_size):
-                        for y in range(kernel_size):
-                            somme += kernel[x, y] * canal[i+x, j+y]
-                    output_array[i, j] += somme
+            output_array += correlate2d(canal, kernel, mode='valid')
         features_map_3D.append(output_array)
     return np.array(features_map_3D)
 
@@ -36,13 +31,4 @@ def convolution(features_map, repetition, kernels, canaux=1):
 def maxpooling(arr):
     map_h, map_l = np.shape(arr)
     output_size = map_h // 2
-    output_array = np.zeros((output_size, output_size))
-    for i in range(output_size):
-        for j in range(output_size):
-            max = arr[i*2, j*2]
-            for x in range(2):
-                for y in range(2):
-                    if max < arr[x+i*2, y+j*2]:
-                        max = arr[x+i*2, y+j*2]
-            output_array[i, j] = max
-    return output_array
+    return arr.reshape(output_size, 2, output_size, 2).max(axis=(1, 3))

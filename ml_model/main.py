@@ -1,7 +1,6 @@
 from convolution import convolution, maxpooling, params
 from utils import relu, softmax, cross_entropy, one_hot, load_dataset_MNIST
 from forward import forward
-from backward import backward
 from PIL import Image
 import numpy as np
 import os

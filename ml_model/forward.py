@@ -1,7 +1,6 @@
 from convolution import convolution, maxpooling
-from utils import relu, softmax
+from utils import relu
 from convolution import params
-from PIL import Image
 import numpy as np
 
 
@@ -29,4 +28,4 @@ def forward(map):
     x2 = relu(np.dot(params["W2"], x1) + params["b2"])
     x3 = np.dot(params["W3"], x2) + params["b3"]
 
-    return x3, x1, x2, flat, map, output, all_fmap_maxpool, output2
+    return x3
