@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "WebSearch",
+      "Bash(git -C \"c:\\\\SAE-OCR\\\\SAE-dev\\\\OCR-powered-by-Neural-Networks\" status)",
+      "Bash(git -C \"c:\\\\SAE-OCR\\\\SAE-dev\\\\OCR-powered-by-Neural-Networks\" diff --stat)"
     ]
   }
 }

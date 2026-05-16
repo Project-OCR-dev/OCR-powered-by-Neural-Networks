@@ -8,7 +8,7 @@ from backward import backward
 from utils import load_dataset, one_hot, CLASSES
 
 BATCH_SIZE = 32
-EPOCHS = 30
+EPOCHS = 60
 LR = 0.003
 LOG_EVERY = 10  # affiche la loss tous les N batches
 
