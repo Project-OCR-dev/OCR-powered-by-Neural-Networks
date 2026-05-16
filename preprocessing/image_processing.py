@@ -11,206 +11,145 @@ def passageEnGris(image):
     """
     Convertit une image RGB en niveaux de gris (grayscale) from scratch.
     
-    Utilise la méthode de la moyenne simple : gray = (R + G + B) / 3
-    Parcourt tous les pixels de l'image et calcule la valeur de gris
-    pour chaque pixel en faisant la moyenne des canaux RGB.
-    
     Args:
-        image (PIL.Image ou str): Image Pillow en mode RGB ou chemin vers l'image.
-                                  Si l'image n'est pas en RGB, elle sera convertie.
+        image: Image Pillow en mode RGB
     
     Returns:
-        PIL.Image: Image en niveaux de gris, valeurs de 0 à 255.
-    
+        PIL.Image: Image en niveaux de gris
     """
     if image.mode != 'RGB':
         image = image.convert('RGB')
-    arrImg= np.array(image)
+    arrImg = np.array(image)
     hauteur, largeur = arrImg.shape[:2]  
-    arrGray = np.zeros((hauteur, largeur),dtype=np.uint8)
-    for x in range(hauteur):
-        for y in range(largeur):
-            r,g,b = arrImg[x,y]
-            r=int(r)
-            g=int(g)
-            b=int(b)
-            gray = (r+g+b)/3
+    arrGray = np.zeros((hauteur, largeur), dtype=np.uint8)
+    for y in range(hauteur):
+        for x in range(largeur):
+            r, g, b = arrImg[y, x]
+            r = int(r)
+            g = int(g)
+            b = int(b)
+            gray = (r + g + b) / 3
             gray = int(gray)
-            arrGray[y,x] = gray
+            arrGray[y, x] = gray
     return Image.fromarray(arrGray)
      
 
 def imageVersMatrice(image):
     """
-    Convertit une image Pillow en matrice NumPy from scratch.
-    
-    Parcourt tous les pixels de l'image un par un et construit manuellement
-    une matrice NumPy 3D contenant les valeurs RGB de chaque pixel.
+    Convertit une image Pillow grayscale en matrice NumPy from scratch.
     
     Args:
-        image (PIL.Image): Image Pillow.
-                                  L'image sera automatiquement convertie en RGB
-                                  si elle est dans un autre mode (L, RGBA, etc.).
+        image: Image Pillow en mode 'L' (grayscale)
     
     Returns:
-        numpy.ndarray: Matrice 3D de shape (hauteur, largeur, 3) contenant
-                       les valeurs RGB des pixels. Type uint8, valeurs 0-255.
-                       - arrMatrice[y, x, 0] = Rouge
-                       - arrMatrice[y, x, 1] = Vert
-                       - arrMatrice[y, x, 2] = Bleu
-
+        numpy.ndarray: Matrice 2D (hauteur, largeur)
     """
     largeur, hauteur = image.size
-    # Cas 2 : Grayscale (mode 'L')
-    if image.mode == 'L':
-        print(f"Conversion image grayscale {largeur}×{hauteur} en matrice 2D")
-        arrMatrice = np.zeros((hauteur, largeur), dtype=np.uint8)
-        for y in range(hauteur):
-            for x in range(largeur):
-                gray = image.getpixel((x, y))
-                arrMatrice[y, x] = gray
-        
-        print(f"Matrice créée : shape {arrMatrice.shape}, dtype {arrMatrice.dtype}")
-        return arrMatrice
-    # Cas 2 : RGB (mode 'RGB')
-    else:
-        if image.mode != 'RGB':
-            image = image.convert('RGB')
-        
-        print(f"Conversion image {largeur}×{hauteur} en matrice")
-        arrMatrice = np.zeros((hauteur, largeur,3),dtype=np.uint8)
-        for y in range(hauteur):
-            for x in range(largeur):
-                r,g,b = image.getpixel((x,y))
-                arrMatrice[y,x,0] = r
-                arrMatrice[y,x,1] = g
-                arrMatrice[y,x,2] = b
-        print(f"Matrice créée : shape {arrMatrice.shape}, dtype {arrMatrice.dtype}")
-        return arrMatrice
+    arrMatrice = np.zeros((hauteur, largeur), dtype=np.uint8)
+    
+    for y in range(hauteur):
+        for x in range(largeur):
+            pixel = image.getpixel((x, y))
+            if isinstance(pixel, tuple):
+                arrMatrice[y, x] = pixel[0]
+            else:
+                arrMatrice[y, x] = pixel
+    
+    return arrMatrice
+
 
 def normaliserMatrice(matrice):
     """
-    Normalise une matrice de pixels (0-255) vers (0-1) from scratch.
+    Normalise une matrice grayscale (0-255 vers 0-1) from scratch.
     
     Args:
-        matrice (numpy.ndarray): Matrice shape (hauteur, largeur, 3), dtype uint8
+        matrice: Matrice 2D, dtype uint8
     
     Returns:
-        numpy.ndarray: Matrice normalisée shape (hauteur, largeur, 3), dtype float32
-    
-    Notes:
-        Divise chaque pixel par 255.0 pour obtenir des valeurs entre 0 et 1,
-        format requis par les réseaux de neurones pour accélérer l'apprentissage et 
-        améliorer la précision des prédictions
+        numpy.ndarray: Matrice 2D normalisée, dtype float32
     """
-    hauteur, largeur, canaux = matrice.shape
-    print(f"largeur {largeur} - hauteur {hauteur}")
-    arrNorm = np.zeros((hauteur, largeur,3),dtype=np.float32)
-    for x in range(hauteur):
-        for y in range(largeur):
-            for z in range(canaux):
-                arrNorm[x,y,z] = matrice[x, y, z] / 255.0
+    hauteur, largeur = matrice.shape
+    arrNorm = np.zeros((hauteur, largeur), dtype=np.float32)
+    
+    for y in range(hauteur):
+        for x in range(largeur):
+            arrNorm[y, x] = matrice[y, x] / 255.0
+    
     return arrNorm
 
-def decouper(image,posx,posy,hauteur,largeur):
+
+def decouper(image, posx, posy, hauteur, largeur):
     """
     Découpe une zone rectangulaire d'une image from scratch.
     
     Args:
-        image (PIL.Image): Image source
-        posx (int): Position X du coin supérieur gauche
-        posy (int): Position Y du coin supérieur gauche
-        hauteur (int): Hauteur de la zone à extraire
-        largeur (int): Largeur de la zone à extraire
+        image: Image source
+        posx: Position X du coin supérieur gauche
+        posy: Position Y du coin supérieur gauche
+        hauteur: Hauteur de la zone
+        largeur: Largeur de la zone
     
     Returns:
         PIL.Image ou None: Zone découpée ou None si invalide
-    
-    Notes:
-        La zone ne doit pas dépasser les limites de l'image source.
-        Retourne None si la zone est invalide.
     """
     matrice = imageVersMatrice(image)
-    h_source, l_source = matrice.shape[:2]
-    # Vérification
+    h_source, l_source = matrice.shape
+    
     if (posx < 0 or posy < 0 or 
         posx + largeur > l_source or 
         posy + hauteur > h_source):
-        print(f"Zone invalide : dépassement des limites")
         return None
-    matriceZone = np.zeros((hauteur,largeur,3),dtype=np.uint8)
+    
+    matriceZone = np.zeros((hauteur, largeur), dtype=np.uint8)
     for y in range(hauteur):
         for x in range(largeur):
-            matriceZone[y,x] = matrice[y+posy,x+posx]
+            matriceZone[y, x] = matrice[y + posy, x + posx]
+    
     return Image.fromarray(matriceZone)
 
-def redimensionner(image, taille=(32,32)):
+
+def redimensionner(image, taille=(32, 32)):
     """
-    Redimensionne une image à la taille spécifiée from scratch.
-    Utilise l'algorithme Nearest Neighbor (plus proche voisin).
-    
-    Pour chaque pixel de l'image destination, calcule quelle position
-    il représente dans l'image source et copie le pixel le plus proche.
+    Redimensionne une image from scratch.
+    Utilise l'algorithme Nearest Neighbor.
     
     Args:
-        image (PIL.Image): Image source
-        taille (tuple): (largeur, hauteur) de destination, par défaut (32, 32)
+        image: Image source
+        taille: (largeur, hauteur) de destination
     
     Returns:
-        Image redimensionnée à la taille spécifiée
-    
-    Notes:
-        - Algorithme : Nearest Neighbor (rapide mais pixelisé si agrandissement)
-        - Pour chaque pixel destination, prend le pixel source le plus proche
-        - Ratio calculé : largeur_source / largeur_destination
-        - Utilise NumPy pour manipuler les matrices de pixels
-        - La fonction construit la nouvelle image from scratch avec des boucles
-      
+        numpy.ndarray: Matrice 2D redimensionnée
     """
     largeur_dest, hauteur_dest = taille
     matrice_src = imageVersMatrice(image)
-    hauteur_src,largeur_src = matrice_src.shape[:2]
-    if len(matrice_src.shape) == 2:
-        matrice_dest = np.zeros((hauteur_dest, largeur_dest), dtype=np.uint8)
-    else:
-        nb_canaux = matrice_src.shape[2]
-        matrice_dest = np.zeros((hauteur_dest, largeur_dest, nb_canaux), dtype=np.uint8)
+    hauteur_src, largeur_src = matrice_src.shape
+    
+    matrice_dest = np.zeros((hauteur_dest, largeur_dest), dtype=np.uint8)
+    
     ratio_x = largeur_src / largeur_dest
     ratio_y = hauteur_src / hauteur_dest
-    for x in range(largeur_dest):
-        for y in range(hauteur_dest):
+    
+    for y in range(hauteur_dest):
+        for x in range(largeur_dest):
             x_calc = int(x * ratio_x)
             y_calc = int(y * ratio_y)
             matrice_dest[y, x] = matrice_src[y_calc, x_calc]
-    return Image.fromarray(matrice_dest)    
+    
+    return matrice_dest
 
 
-# ============================================
-# BINARISATION
-# ============================================
+########### BINARISATION ###########
 
 def calculerSeuilOptimal(matrice):
     """
     Calcule le seuil optimal de binarisation par la méthode d'Otsu.
     
-    La méthode d'Otsu détermine automatiquement le meilleur seuil en maximisant
-    la variance inter-classes entre les pixels clairs (fond) et les pixels 
-    foncés (texte). Cela permet une binarisation adaptative sans seuil manuel.
-    
-    Principe :
-        Pour chaque seuil possible (0-255), l'algorithme :
-        1. Sépare les pixels en deux groupes (fond/texte)
-        2. Calcule la variance entre ces groupes
-        3. Garde le seuil qui maximise cette variance
-        
     Args:
-        matrice (numpy.ndarray): Matrice grayscale 2D avec valeurs 0-255
+        matrice: Matrice grayscale 2D
     
     Returns:
-        int: Seuil optimal (0-255) qui sépare le mieux fond et texte
-
+        int: Seuil optimal (0-255)
     """
-    # Calculer histogramme (combien de pixels de chaque valeur)
     histogramme = np.zeros(256, dtype=int)
     hauteur, largeur = matrice.shape
 
@@ -219,185 +158,320 @@ def calculerSeuilOptimal(matrice):
             valeur = matrice[y, x]
             histogramme[valeur] += 1
 
-    # Total pixels
     total_pixels = hauteur * largeur
 
-    # Calculer somme totale pondérée
     somme_totale = 0
     for i in range(256):
         somme_totale += i * histogramme[i]
 
-    # Trouver le seuil optimal
     somme_fond = 0
     poids_fond = 0
     variance_max = 0
     seuil_optimal = 0
 
     for t in range(256):
-        # Poids fond (pixels <= t)
         poids_fond += histogramme[t]
         if poids_fond == 0:
             continue
         
-        # Poids objet (pixels > t)
         poids_objet = total_pixels - poids_fond
         if poids_objet == 0:
             break
         
-        # Somme fond
         somme_fond += t * histogramme[t]
         
-        # Moyennes
         moyenne_fond = somme_fond / poids_fond
         moyenne_objet = (somme_totale - somme_fond) / poids_objet
         
-        # Variance inter-classes
         variance = poids_fond * poids_objet * (moyenne_fond - moyenne_objet) ** 2
         
-        # Garder le seuil avec variance maximale
         if variance > variance_max:
             variance_max = variance
             seuil_optimal = t
 
     return seuil_optimal
 
+
 def binariser(matrice, seuil=None):
     """
-    Binarise une image grayscale (convertit en noir et blanc pur).
-    
-    Transforme chaque pixel en noir (0) ou blanc (255) selon un seuil.
-    Si aucun seuil n'est fourni, utilise la méthode d'Otsu pour calculer
-    automatiquement le seuil optimal.
+    Binarise une image grayscale.
     
     Args:
-        matrice (numpy.ndarray): Matrice grayscale 2D avec valeurs 0-255
-        seuil (int, optional): Seuil de binarisation (0-255).
-            Si None, calcule automatiquement le seuil par méthode d'Otsu.
-            Défaut : None
+        matrice: Matrice grayscale 2D
+        seuil: Seuil de binarisation (None = Otsu auto)
     
     Returns:
-        numpy.ndarray: Matrice binarisée 2D avec seulement deux valeurs :
-            - 0 (noir) pour les pixels < seuil (texte)
-            - 255 (blanc) pour les pixels >= seuil (fond)
+        numpy.ndarray: Matrice binarisée 2D (0=noir, 255=blanc)
     """
-    hauteur, largeur = matrice.shape[:2]
+    hauteur, largeur = matrice.shape
     if seuil is None:
         seuil = calculerSeuilOptimal(matrice)
-        print(f"Seuil optimal calculé : {seuil}")
+    
     matrice_bin = np.zeros((hauteur, largeur), dtype=np.uint8)
     for y in range(hauteur):
         for x in range(largeur):
             if matrice[y, x] >= seuil:
-                matrice_bin[y, x] = 255  # Blanc (fond)
+                matrice_bin[y, x] = 255
             else:
-                matrice_bin[y, x] = 0    # Noir (texte)
+                matrice_bin[y, x] = 0
+    
     return matrice_bin
 
-# ============================================
-# SEGMENTATION
-# ============================================
+
+########### SEGMENTATION ###########
 
 def projectionVerticale(matrice):
     """
-    Compte les pixels noirs par colonne (projection verticale).
-    
-    Cette fonction analyse chaque colonne de l'image binarisée et compte
-    combien de pixels noirs (texte) elle contient. Le résultat est un
-    histogramme qui permet de détecter où se trouvent les lettres.
-    
-    Principe :
-        - Parcourir chaque colonne de gauche à droite
-        - Compter les pixels noirs (valeur 0) dans chaque colonne
-        - Une colonne avec beaucoup de pixels noirs = lettre
-        - Une colonne avec peu/pas de pixels noirs = espace
+    Compte les pixels noirs par colonne.
     
     Args:
-        matrice_bin (numpy.ndarray): Matrice binarisée 2D (0=noir, 255=blanc)
-            Issue de la fonction binariser()
+        matrice: Matrice binarisée 2D
     
     Returns:
-        list: Liste de longueur = largeur de l'image.
-            Chaque élément = nombre de pixels noirs dans la colonne correspondante.
+        list: Nombre de pixels noirs par colonne
     """
     hauteur, largeur = matrice.shape
     projection = []
     
-    # Pour chaque colonne
     for x in range(largeur):
         compteur = 0
-        
-        # Compter les pixels noirs dans cette colonne
         for y in range(hauteur):
-            if matrice[y, x] == 0:  # Pixel noir
+            if matrice[y, x] == 0:
                 compteur += 1
-        
         projection.append(compteur)
 
     return projection
+
 
 def projectionHorizontale(matrice, x_debut, x_fin):
     """
-    Compte les pixels noirs par ligne dans une zone donnée (projection horizontale).
-    
-    Cette fonction analyse chaque ligne dans une zone verticale délimitée
-    par x_debut et x_fin, et compte combien de pixels noirs elle contient.
-    Utilisée après projectionVerticale pour trouver les limites haut/bas
-    d'une lettre.
-    
-    Principe :
-        - Analyser uniquement les colonnes entre x_debut et x_fin
-        - Pour chaque ligne, compter les pixels noirs dans cette zone
-        - Les lignes avec beaucoup de pixels = partie de la lettre
-        - Les lignes avec peu/pas de pixels = espace au-dessus/en-dessous
+    Compte les pixels noirs par ligne dans une zone.
     
     Args:
-        matrice (numpy.ndarray): Matrice binarisée 2D (0=noir, 255=blanc)
-        x_debut (int): Colonne de début de la zone à analyser (incluse)
-        x_fin (int): Colonne de fin de la zone à analyser (exclue)
+        matrice: Matrice binarisée 2D
+        x_debut: Colonne de début
+        x_fin: Colonne de fin
     
     Returns:
-        list: Liste de longueur = hauteur de l'image.
-            Chaque élément = nombre de pixels noirs dans la ligne correspondante
-            (uniquement dans la zone x_debut à x_fin).
+        list: Nombre de pixels noirs par ligne
     """
     hauteur, largeur = matrice.shape
     projection = []
     
-    # Pour chaque colonne
-    for x in range(hauteur):
+    for y in range(hauteur):
         compteur = 0
-        
-        # Compter les pixels noirs dans cette colonne
         for x in range(x_debut, x_fin):
-            if matrice[y, x] == 0:  # Pixel noir
+            if matrice[y, x] == 0:
                 compteur += 1
-        
         projection.append(compteur)
 
     return projection
 
 
-#============== FONCTION PIPELINE COMPLET POUR PREPROCESS ================
+def detecterZonesLettres(projection, seuil_min=5):
+    """
+    Détecte les zones contenant des lettres.
+    
+    Args:
+        projection: Projection verticale
+        seuil_min: Seuil minimum
+    
+    Returns:
+        list: Liste de tuples (x_debut, x_fin)
+    """
+    zones = []
+    dans_lettre = False
+    x_debut = 0
+    
+    for x in range(len(projection)):
+        if projection[x] > seuil_min and not dans_lettre:
+            x_debut = x
+            dans_lettre = True
+        elif projection[x] <= seuil_min and dans_lettre:
+            zones.append((x_debut, x))
+            dans_lettre = False
+    
+    if dans_lettre:
+        zones.append((x_debut, len(projection)))
+    
+    return zones
 
-#pipeline temporaire en attendant la segmentation
-def preprocess_pour_ocr(image,taille=(32,32)):
-    # 1. Image RGB -> Grayscale (Image Pillow)
+
+def trouverLimitesVerticales(projection, seuil_min=3):
+    """
+    Trouve les limites haut et bas d'une lettre.
+    
+    Args:
+        projection: Projection horizontale
+        seuil_min: Seuil minimum
+    
+    Returns:
+        tuple: (y_debut, y_fin) ou None
+    """
+    y_debut = None
+    y_fin = None
+    
+    for y in range(len(projection)):
+        if projection[y] > seuil_min and y_debut is None:
+            y_debut = y
+        if projection[y] <= seuil_min and y_debut is not None and y_fin is None:
+            y_fin = y
+            break
+    
+    if y_debut is not None and y_fin is None:
+        y_fin = len(projection)
+    
+    if y_debut is None:
+        return None
+    
+    return (y_debut, y_fin)
+
+
+def detecterLettres(matrice):
+    """
+    Détecte toutes les lettres dans l'image.
+    
+    Args:
+        matrice: Matrice binarisée 2D
+    
+    Returns:
+        list: Liste de dict avec clés 'x', 'y', 'w', 'h'
+    """
+    proj_v = projectionVerticale(matrice)
+    zones = detecterZonesLettres(proj_v, seuil_min=5)
+    
+    lettres = []
+    
+    for x_debut, x_fin in zones:
+        proj_h = projectionHorizontale(matrice, x_debut, x_fin)
+        limites = trouverLimitesVerticales(proj_h, seuil_min=3)
+        
+        if limites is not None:
+            y_debut, y_fin = limites
+            lettres.append({
+                'x': x_debut,
+                'y': y_debut,
+                'w': x_fin - x_debut,
+                'h': y_fin - y_debut
+            })
+    
+    return lettres
+
+
+########### PIPELINES ###########
+
+def ocrLettreIsolee(image, taille=(32, 32)):
+    """
+    OCR pour une seule lettre isolée.
+    
+    Args:
+        image: Image Pillow d'une seule lettre
+        taille: Taille de redimensionnement
+    
+    Returns:
+        str: Lettre prédite
+    """
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from ml_model.predict import predict_image
+    
     img_gray = passageEnGris(image)
-    # 2. Image -> Matrice (NumPy)
-    matrice_gray = imageVersMatrice(img_gray)
-    # 3. Binarisation Otsu (Matrice NumPy)
-    matrice_bin = binariser(matrice_gray)
-    # 4. Matrice -> Image (pour découper)
-    img_bin = Image.fromarray(matrice_bin)
-    # 5. Découper (Image Pillow)
-    lettre = decouper(img_bin, posx=440 , posy=30, hauteur=350, largeur=280)
-    # 6. Redimensionner (Image Pillow)
-    img_resized = redimensionner(lettre, taille=taille)
-    img_resized.show()
-    # 7. Convertir en matrice (NumPy)
-    matrice = imageVersMatrice(img_resized)
-    # 8. Normaliser (NumPy)
+    matrice = redimensionner(img_gray, taille=taille)
     matrice_norm = normaliserMatrice(matrice)
-    return matrice_norm
+    
+    lettre = predict_image(matrice_norm)
+    
+    return lettre
 
 
+def ocrTexteComplet(image, taille=(32, 32), seuil_espace=0.5):
+    """
+    OCR pour un texte complet (lettres espacées).
+    
+    Args:
+        image: Image Pillow avec texte
+        taille: Taille de redimensionnement
+        seuil_espace: Coefficient pour détecter espaces
+    
+    Returns:
+        str: Texte reconnu
+    """
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from ml_model.predict import predict_image
+    
+    img_gray = passageEnGris(image)
+    matrice_gray = imageVersMatrice(img_gray)
+    matrice_bin = binariser(matrice_gray)
+    lettres = detecterLettres(matrice_bin)
+    
+    if len(lettres) == 0:
+        return ""
+    
+    img_bin = Image.fromarray(matrice_bin)
+    
+    liste_matrices = []
+    
+    for lettre in lettres:
+        lettre_img = decouper(img_bin, lettre['x'], lettre['y'], 
+                              lettre['h'], lettre['w'])
+        if lettre_img is None:
+            continue
+        
+        matrice = redimensionner(lettre_img, taille=taille)
+        matrice_norm = normaliserMatrice(matrice)
+        liste_matrices.append(matrice_norm)
+    
+    predictions = []
+    for matrice in liste_matrices:
+        pred = predict_image(matrice)
+        predictions.append(pred)
+    
+    texte = ""
+    position_precedente = None
+    largeur_precedente = None
+    
+    for i, lettre in enumerate(lettres):
+        if position_precedente is not None:
+            ecart = lettre['x'] - (position_precedente + largeur_precedente)
+            largeur_moyenne = (lettre['w'] + largeur_precedente) / 2
+            
+            if ecart > largeur_moyenne * seuil_espace:
+                texte += " "
+        
+        texte += predictions[i]
+        
+        position_precedente = lettre['x']
+        largeur_precedente = lettre['w']
+    
+    return texte
+
+
+####### TEST SEGMENTATION #######
+
+def testerSegmentation(chemin_image):
+    """
+    Teste la segmentation sur une image.
+    """
+    print(f"Chargement : {chemin_image}")
+    
+    image = Image.open(chemin_image)
+    img_gray = passageEnGris(image)
+    matrice_gray = imageVersMatrice(img_gray)
+    matrice_bin = binariser(matrice_gray)
+    lettres = detecterLettres(matrice_bin)
+    
+    print(f"\nLettres détectées : {len(lettres)}")
+    
+    for i, lettre in enumerate(lettres):
+        print(f"Lettre {i+1}: x={lettre['x']}, y={lettre['y']}, w={lettre['w']}, h={lettre['h']}")
+    
+    img_bin = Image.fromarray(matrice_bin)
+    nom_sortie = chemin_image.replace('.png', '_binarise.png')
+    img_bin.save(nom_sortie)
+    print(f"\nImage binarisée sauvegardée : {nom_sortie}")
+    img_bin.show()
+    
+    return lettres
