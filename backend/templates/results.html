@@ -12,15 +12,28 @@
     </header>
     
     <div class="container">
+        <!-- MODE UTILISÉ -->
+        <div class="mode-section">
+            <h3>Mode d'analyse</h3>
+            <p class="mode-badge">{{ type_ocr }}</p>
+        </div>
+        
+        <!-- IMAGE ANALYSÉE -->
         <div id="image">
-            <h2>Analyse de : {{ filename }}</h2>
+            <h2>Image analysée : {{ filename }}</h2>
             <img src="{{ url_for('static', filename='uploads/' + filename) }}" 
                  alt="Image analysée">
         </div>
         
+        <!-- RÉSULTATS -->
         <div id="prediction">
-            <h2>Résultats : {{ prediction }}</h2>
-            <h2>Confiance : {{ confidence }}%</h2>
+            <h2>Texte reconnu</h2>
+            <div class="resultat-box">{{ prediction }}</div>
+            
+            {% if confidence %}
+            <h3>Confiance : {{ confidence }}%</h3>
+            {% endif %}
+            
             <a href="{{ url_for('index') }}" id="retourIndexBtn">
                 Analyser une autre image
             </a>

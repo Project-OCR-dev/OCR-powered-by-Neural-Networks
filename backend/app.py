@@ -1,6 +1,13 @@
-from flask import Flask, render_template, request,jsonify,redirect,url_for,flash,get_flashed_messages
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, get_flashed_messages
 import os
-import random
+import sys
+from werkzeug.utils import secure_filename
+
+# Ajouter le chemin pour importer preprocessing
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from preprocessing.image_processing import ocrLettreIsolee, ocrTexteComplet
+from PIL import Image
 
 app = Flask(__name__)
 # dossier ou sont sauvegardés les fichiers uploadé
@@ -10,9 +17,12 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 # il faudra générer une vraie clé aléatoire avant mise en production sur serveur
 app.config['SECRET_KEY'] = 'une-cle-secrete'
 
+# Créer le dossier uploads s'il n'existe pas
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 
 def allowed_file(filename):
-    """ls
+    """
     Vérifie si l'extension du fichier est autorisée.
     
     Args:
@@ -26,25 +36,26 @@ def allowed_file(filename):
         return ext in app.config['ALLOWED_EXTENSIONS']
     return False
 
-# Route qui permet de charger index.html
+
 @app.route('/')
 def index():
     """Affiche la page d'accueil avec le formulaire"""
     return render_template('index.html')
 
-# Route qui reçoit le fichier uploadé via POST
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
     Traite l'upload d'un fichier image.
     
     Vérifie la présence du fichier, valide son extension,
-    et le sauvegarde dans le dossier uploads/ puis redirige 
-    vers la page de traitement 
+    sauvegarde dans le dossier uploads/ et lance l'analyse OCR
+    selon le mode choisi (lettre isolée ou texte complet).
     
     Returns:
-        redirection vers fonction process
+        redirection vers la page de résultats
     """
+    # Vérifier qu'un fichier a été envoyé
     if 'file' not in request.files:
         flash("Erreur : aucun fichier sélectionné", 'error')
         return redirect(url_for('index'))
@@ -52,25 +63,59 @@ def upload_file():
     file = request.files['file']
 
     if file.filename == '':
-        flash("Erreur :  fichier inexistant", 'error')
+        flash("Erreur : fichier inexistant", 'error')
         return redirect(url_for('index'))
 
-    if allowed_file(file.filename):
-        flash(f"{file.filename} uploadé avec succès !", 'success')
-        file.save(os.path.join('static/uploads', file.filename))
-        return redirect(url_for('process',filename=file.filename))
-    else:
-        flash("Erreur :  type de fichier non autorisé !", 'error')
+    # Vérifier l'extension
+    if not allowed_file(file.filename):
+        flash("Erreur : type de fichier non autorisé !", 'error')
         return redirect(url_for('index'))
     
+    # Sauvegarder le fichier
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    
+    # Récupérer le mode choisi
+    mode = request.form.get('mode', 'lettre')  # Par défaut 'lettre'
+    
+    # Charger l'image
+    try:
+        image = Image.open(filepath)
+        
+        # Traiter selon le mode
+        if mode == 'lettre':
+            resultat = ocrLettreIsolee(image)
+            type_ocr = "Lettre isolée"
+        else:  # mode == 'texte'
+            resultat = ocrTexteComplet(image)
+            type_ocr = "Texte complet"
+        
+        flash(f"{filename} analysé avec succès !", 'success')
+        
+        # Rediriger vers la page de résultats
+        return redirect(url_for('results', 
+                               filename=filename,
+                               prediction=resultat,
+                               type_ocr=type_ocr))
+    
+    except Exception as e:
+        flash(f"Erreur lors du traitement : {str(e)}", 'error')
+        return redirect(url_for('index'))
+
 
 @app.route('/processing/<filename>')
 def process(filename):
-    """Affiche la page de traitement"""
+    """Affiche la page de traitement (optionnel - peut être supprimé)"""
     return render_template('processing.html', filename=filename)
+
 
 @app.route('/analyze/<filename>', methods=['POST'])
 def analyze(filename):
+    """
+    Route optionnelle pour analyse asynchrone
+    (peut être supprimée si on fait tout dans /upload)
+    """
     import random
     
     # données simulées - sera remplacé par le vrai modèle ML plus tard
@@ -82,16 +127,20 @@ def analyze(filename):
                            prediction=prediction, 
                            confidence=confidence))
 
+
 @app.route('/results/<filename>')
 def results(filename):
-    import random
-    #données simulées pour test
-    fake_prediction = random.choice(['A', 'B', 'C', '1', '7'])
-    fake_confidence = round(random.uniform(85, 98), 1)
-    """Affiche la de page de résultats"""
-    return render_template('results.html',filename=filename,
-                         prediction=fake_prediction,
-                         confidence=fake_confidence)
+    """Affiche la page de résultats"""
+    # Récupérer les paramètres de l'URL
+    prediction = request.args.get('prediction', 'N/A')
+    type_ocr = request.args.get('type_ocr', 'Lettre isolée')
+    confidence = request.args.get('confidence', 0)
+    
+    return render_template('results.html',
+                         filename=filename,
+                         prediction=prediction,
+                         type_ocr=type_ocr,
+                         confidence=confidence)
 
 
 if __name__ == '__main__':

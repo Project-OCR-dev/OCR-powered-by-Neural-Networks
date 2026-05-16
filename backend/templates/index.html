@@ -5,25 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCR avec Réseau neuronal</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
-    
   </head>
   
   <body>
     
-    <h1> Reconnaissance de Caractères OCR </h1>
+    <h1>Reconnaissance de Caractères OCR</h1>
     <h2>OCR Characters Recognition System</h2>
     
     <div class="container">
         <p>Uploader l'image à analyser</p>
 
-
-
         <form method="POST" action="/upload" enctype="multipart/form-data">
-            <input id='inputFile'type="file" name="file" accept="image/*">
+            
+            <!-- CHOIX DU MODE -->
+            <div class="mode-selection">
+                <label class="mode-option">
+                    <input type="radio" name="mode" value="lettre" checked>
+                    <span>Caractère isolé</span>
+                </label>
+                
+                <label class="mode-option">
+                    <input type="radio" name="mode" value="texte">
+                    <span>Suite de Caractères</span>
+                </label>
+            </div>
+
+            <!-- UPLOAD IMAGE -->
+            <input id='inputFile' type="file" name="file" accept="image/*">
             <button id='submit' type="submit">Analyser</button>
         </form>
     </div>
-
 
     <!-- MESSAGES FLASH -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -44,5 +55,5 @@
         <p>Créé par Mehdi KHATTAB et Jounaïd MAZNI</p>
     </footer>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
+  </body>
 </html>
