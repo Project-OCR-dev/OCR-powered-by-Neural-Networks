@@ -360,7 +360,7 @@ def detecterLettres(matrice):
 
 ########### PIPELINES ###########
 
-def ocrLettreIsolee(image, taille=(32, 32)):
+def ocrLettreIsolee(image, taille=(30, 30)):
     """
     OCR pour une seule lettre isolée.
     
@@ -373,10 +373,15 @@ def ocrLettreIsolee(image, taille=(32, 32)):
     """
     import sys
     import os
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-    from ml_model.predict import predict_image
+    ml_model_path = os.path.join(os.path.dirname(__file__), '..', 'ml_model')
+    if ml_model_path not in sys.path:
+      sys.path.insert(0, ml_model_path)
+    from ml_model.predict import predict_image  
     
     img_gray = passageEnGris(image)
+    matrice = imageVersMatrice(img_gray)
+    matrice = 255 - matrice          # inversion ici
+    img_gray = Image.fromarray(matrice)
     matrice = redimensionner(img_gray, taille=taille)
     matrice_norm = normaliserMatrice(matrice)
     
@@ -385,7 +390,7 @@ def ocrLettreIsolee(image, taille=(32, 32)):
     return lettre
 
 
-def ocrTexteComplet(image, taille=(32, 32), seuil_espace=0.5):
+def ocrTexteComplet(image, taille=(30, 30), seuil_espace=0.5):
     """
     OCR pour un texte complet (lettres espacées).
     
@@ -399,7 +404,9 @@ def ocrTexteComplet(image, taille=(32, 32), seuil_espace=0.5):
     """
     import sys
     import os
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    ml_model_path = os.path.join(os.path.dirname(__file__), '..', 'ml_model')
+    if ml_model_path not in sys.path:
+        sys.path.insert(0, ml_model_path)
     from ml_model.predict import predict_image
     
     img_gray = passageEnGris(image)
@@ -419,8 +426,10 @@ def ocrTexteComplet(image, taille=(32, 32), seuil_espace=0.5):
                               lettre['h'], lettre['w'])
         if lettre_img is None:
             continue
-        
-        matrice = redimensionner(lettre_img, taille=taille)
+        mat = imageVersMatrice(lettre_img)
+        mat = 255 - mat                  # inversion ici
+        lettre_inv = Image.fromarray(mat)   
+        matrice = redimensionner(lettre_inv, taille=taille)
         matrice_norm = normaliserMatrice(matrice)
         liste_matrices.append(matrice_norm)
     

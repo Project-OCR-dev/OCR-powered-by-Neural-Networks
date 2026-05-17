@@ -86,9 +86,11 @@ def upload_file():
         # Traiter selon le mode
         if mode == 'lettre':
             resultat = ocrLettreIsolee(image)
+            print(f"Prédiction lettre isolée : {resultat}")  
             type_ocr = "Lettre isolée"
         else:  # mode == 'texte'
             resultat = ocrTexteComplet(image)
+            print(f"Prédiction suite de lettres : {resultat}")  
             type_ocr = "Texte complet"
         
         flash(f"{filename} analysé avec succès !", 'success')
