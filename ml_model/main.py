@@ -1,70 +1,56 @@
-from convolution import convolution
-from convolution import maxpooling
-from utils import relu, normalized
-from preprocessing.image_processi
-ng import passageEnGris
-
+from convolution import convolution, maxpooling, params
+from utils import relu, softmax, cross_entropy, one_hot, load_dataset_MNIST
+from forward import forward
 from PIL import Image
 import numpy as np
-import random
 import os
+import pickle
 
 
-
-#ouvre l'image initial
-im = Image.open("./input/8.png")
-
-#passage en niveau de gris et affichage
-gray = passageEnGris(im)
-
-#conversion image en matrice numpy
-map = np.asarray(gray)
-
-def forward():
-    folder_path = "./output"
-    folder_path2 = "./output2"
-    # Crée le dossier s'il n'existe pas
-    os.makedirs(folder_path, exist_ok=True)
-    os.makedirs(folder_path2, exist_ok=True)
-
-    output = convolution(map,32)
-    all_fmap_maxpool = []
-
-    for i in range(32):
-
-        fmap = relu(output[i])
-        fmap_maxpool = maxpooling(fmap)
-        fmap_normalized = normalized(fmap_maxpool)
-        fmap_image = Image.fromarray(fmap_normalized)
-
-        # Chemin complet pour sauvegarder l'image
-        file_path = os.path.join(folder_path, f"fmap_{i+1}.png")
-        img = fmap_image
-
-        # Sauvegarde l'image
-        img.save(file_path) 
-
-        all_fmap_maxpool.append(fmap_maxpool)
-
-    all_fmap_maxpool = np.array(all_fmap_maxpool)
-    output2 = convolution(all_fmap_maxpool,64,canaux=32)
-    
-    for i in range(64):
-
-        fmap2 = relu(output2[i])
-        fmap_maxpool2 = maxpooling(fmap2)
-
-        fmap_normalized2 = normalized(fmap_maxpool2)
-        fmap_image2 = Image.fromarray(fmap_normalized2)
-
-        # Chemin complet pour sauvegarder l'image
-        file_path = os.path.join(folder_path2, f"fmap2_{i+1}.png")
-        img = fmap_image2
-
-        # Sauvegarde l'image
-        img.save(file_path) 
+if os.path.exists("params_trained.pkl"):
+    with open("params_trained.pkl", "rb") as f:
+        params_charges = pickle.load(f)
+    for key in params_charges:
+        params[key] = params_charges[key]
+    print("Poids chargés")
+else:
+    print("Pas de poids sauvegardés, démarrage entrainement")
 
 
-#déclencheur du script :
+file_path = "dataset/"
+total_loss = 0
+
+
+def global_loss_function(L):
+    global total_loss
+    total_loss += L
+
+
 if __name__ == "__main__":
-    forward()
+    images, labels, mapping = load_dataset_MNIST("train")
+    total_iterations = 0
+
+    for epoch in range(5):
+        total_loss = 0
+        shuffle = np.random.permutation(len(images))
+
+        for j in range(len(images)):
+            image = images[shuffle[j]]
+            label = labels[shuffle[j]]
+
+            x3, x1, x2, flat, entree_conv1, sortie_conv1, entree_conv2, sortie_conv2 = forward(image)
+            proba = softmax(x3)
+            y_one_hot = one_hot(label)
+            loss = cross_entropy(proba, y_one_hot)
+            global_loss_function(loss)
+            backward(proba, y_one_hot, x1, x2, flat, entree_conv1, entree_conv2, sortie_conv1, sortie_conv2)
+
+            total_iterations += 1
+            if total_iterations % 50000 == 0:
+                with open(f"params_iter_{total_iterations}.pkl", "wb") as f:
+                    pickle.dump(params, f)
+                print(f"Sauvegarde intermédiaire à {total_iterations} itérations")
+
+        with open(f"params_epoch_{epoch+1}.pkl", "wb") as f:
+            pickle.dump(params, f)
+        print(f"Epoch {epoch+1} \n Loss moyenne : {total_loss/len(images):.4f} \n sauvegardé")
