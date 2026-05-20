@@ -86,25 +86,6 @@ Open your browser at `http://localhost:5000`
 
 ---
 
-### 📁 Project Structure
-
-OCR-powered-by-Neural-Networks/
-├── backend/ # Flask web application
-│ ├── static/ # CSS, JS, uploaded images
-│ ├── templates/ # HTML templates
-│ └── app.py # Flask entry point
-├── ml_model/ # Neural network implementation
-│ ├── convolution.py # Convolution operations
-│ ├── forward.py # Forward pass
-│ ├── predict.py # Prediction interface
-│ └── params_epoch_30.pkl # Trained model weights
-├── preprocessing/ # Image processing pipeline
-│ ├── images/ # Test images
-│ └── image_processing.py # Processing functions
-└── docs/ # Documentation
-
----
-
 ### 🎓 Educational Approach
 
 This project follows a **"from scratch"** philosophy to:
@@ -218,25 +199,6 @@ python backend/app.py
 ```
 
 Ouvrir le navigateur à `http://localhost:5000`
-
----
-
-### 📁 Structure du projet
-
-OCR-powered-by-Neural-Networks/
-├── backend/ # Application web Flask
-│ ├── static/ # CSS, JS, images uploadées
-│ ├── templates/ # Templates HTML
-│ └── app.py # Point d'entrée Flask
-├── ml_model/ # Implémentation réseau de neurones
-│ ├── convolution.py # Opérations de convolution
-│ ├── forward.py # Passe avant
-│ ├── predict.py # Interface de prédiction
-│ └── params_epoch_30.pkl # Poids du modèle entraîné
-├── preprocessing/ # Pipeline de traitement d'image
-│ ├── images/ # Images de test
-│ └── image_processing.py # Fonctions de traitement
-└── docs/ # Documentation
 
 ---
 
