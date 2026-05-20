@@ -6,168 +6,268 @@
 
 ## English Version
 
-Character recognition system (OCR) developed from scratch with neural networks and Flask web application.
+### 🔍 Overview
 
-### Description
+Complete OCR (Optical Character Recognition) system built entirely from scratch using neural networks and a Flask web interface. This project demonstrates a pedagogical approach to machine learning by implementing core algorithms without relying on high-level frameworks like TensorFlow or PyTorch.
 
-Complete OCR system development project combining:
+**Academic Context:** BUT Informatique Special Year Program (SAÉ S2 - 2026)  
+**Repository:** [GitHub Project](https://github.com/Project-OCR-dev/OCR-powered-by-Neural-Networks)
 
-- **Frontend**: Flask web application with responsive interface
-- **Backend**: Image preprocessing pipeline from scratch
-- **Machine Learning**: Neural network for character recognition (EMNIST dataset)
+---
 
-Developed as part of the BUT Informatique Special Year program (SAÉ S2 - 2026).
+### ✨ Features
 
-### Features
+#### 🎯 Core Functionality
 
-#### Currently Implemented
+- **Dual Recognition Modes:**
+  - Single isolated character recognition
+  - Multi-character text recognition with automatic segmentation
+- **From-Scratch Implementation:**
+  - Image preprocessing pipeline (grayscale conversion, resizing, normalization, binarization)
+  - Character segmentation using projection-based algorithms
+  - Neural network architecture (MLP) implemented in pure NumPy
+- **Web Interface:**
+  - Intuitive Flask-based interface
+  - Real-time image upload and processing
+  - Clear result visualization with mode indication
 
-- Secure image upload (file type validation)
-- RGB → Grayscale conversion from scratch
-- Image → NumPy Matrix conversion from scratch
-- Data normalization (0-255 → 0-1)
-- Responsive web interface with user feedback (Flash messages)
-- 3-page workflow: Upload → Processing → Results
-- Error handling and validation
+#### 🔧 Technical Components
 
-#### Under Development
+**Image Preprocessing:**
 
-- Image resizing (28×28)
-- Region of interest cropping
-- Neural network training
-- ML model integration in Flask
+- RGB → Grayscale conversion (manual weighted averaging)
+- Pillow Image → NumPy matrix conversion
+- Nearest Neighbor resizing to 32×32
+- Pixel normalization (0-255 → 0-1)
+- Otsu's method for adaptive thresholding
+- Horizontal/vertical projection for character detection
 
-#### Next Steps
+**Neural Network:**
 
-- Complete preprocessing pipeline
-- Real-time prediction
-- Results visualization
-- Deployment
+- Multi-layer Perceptron (MLP) architecture
+- Input: 1024 neurons (32×32 normalized pixels)
+- Hidden layers: 128 and 64 neurons with ReLU activation
+- Output: 62 classes (0-9, A-Z, a-z) with Softmax
+- Training: Backpropagation with mini-batch SGD on EMNIST byclass dataset
+- Accuracy: >85% on test set
 
-### Technologies Used
+**Web Application:**
 
-**Backend:**
-
-- Python 3.x
-- Flask (web server)
-- NumPy (matrix computations)
-- Pillow (image manipulation)
-
-**Frontend:**
-
-- HTML5 / CSS3
-- JavaScript
+- Secure file upload with validation
+- Mode selection (isolated character vs. full text)
 - Responsive design
+- Error handling and user feedback
 
-**Machine Learning:**
+---
 
-- EMNIST dataset (handwritten characters)
-- Neural network from scratch
+### 🚀 Quick Start
 
-### User Workflow
+#### Prerequisites
 
-1. **Upload**: Upload an image (PNG, JPG, JPEG, GIF)
-2. **Processing**: Image is automatically processed
-3. **Results**: Prediction result display
+```bash
+Python 3.8+
+pip install flask pillow numpy
+```
 
-### Educational Approach
+#### Installation
 
-This project adopts a **"from scratch"** approach to:
+```bash
+git clone https://github.com/Project-OCR-dev/OCR-powered-by-Neural-Networks.git
+cd OCR-powered-by-Neural-Networks
+```
 
-- Understand image processing algorithms
-- Master data structures (matrices, arrays)
-- Learn ML preprocessing fundamentals
+#### Running the Application
 
-**Goal**: Develop deep understanding rather than solely using high-level libraries.
+```bash
+python backend/app.py
+```
 
-### Contributors
+Open your browser at `http://localhost:5000`
 
-- **Mehdi KHATTAB** - Web development (Flask, Frontend) and preprocessing
-- **Jounaïd MAZNI** - Machine Learning (Neural network, Training)
+---
 
-**Status:** Under active development
+### 📁 Project Structure
+
+OCR-powered-by-Neural-Networks/
+├── backend/ # Flask web application
+│ ├── static/ # CSS, JS, uploaded images
+│ ├── templates/ # HTML templates
+│ └── app.py # Flask entry point
+├── ml_model/ # Neural network implementation
+│ ├── convolution.py # Convolution operations
+│ ├── forward.py # Forward pass
+│ ├── predict.py # Prediction interface
+│ └── params_epoch_30.pkl # Trained model weights
+├── preprocessing/ # Image processing pipeline
+│ ├── images/ # Test images
+│ └── image_processing.py # Processing functions
+└── docs/ # Documentation
+
+---
+
+### 🎓 Educational Approach
+
+This project follows a **"from scratch"** philosophy to:
+
+- **Understand fundamentals:** Grasp what happens at each pixel-level operation
+- **Master data structures:** Work with matrices, arrays, and tensors manually
+- **Learn ML internals:** Implement backpropagation and gradient descent without black-box libraries
+- **Debug deeply:** Confront and solve coordinate convention issues (NumPy vs. Pillow)
+
+**Result:** Deep understanding of OCR and neural network mechanics beyond library usage.
+
+---
+
+### ⚠️ Known Limitations
+
+- **Segmentation:** Works best with well-spaced characters; touching characters are not separated
+- **Image quality:** Low contrast, noise, or visual effects (shadows, colors, relief) degrade accuracy
+- **Character set:** Limited to alphanumeric Latin characters (0-9, A-Z, a-z)
+
+---
+
+### 👥 Contributors
+
+- **Mehdi KHATTAB** - Image preprocessing pipeline, Flask integration, web interface, deployment
+- **Jounaïd MAZNI** - Neural network architecture, training, EMNIST dataset management
+
+---
+
+### 📄 License
+
+Academic project - BUT Informatique (2026)
 
 ---
 
 ## Version Française
 
-Système de reconnaissance de caractères (OCR) développé from scratch avec réseau de neurones et application web Flask.
+### 🔍 Aperçu
 
-### Description
+Système complet de reconnaissance optique de caractères (OCR) développé entièrement from scratch avec réseau de neurones et interface web Flask. Ce projet illustre une approche pédagogique du machine learning en implémentant les algorithmes fondamentaux sans recourir aux frameworks haut niveau comme TensorFlow ou PyTorch.
 
-Projet de développement d'un système OCR complet combinant :
+**Contexte académique :** BUT Informatique Année Spéciale (SAÉ S2 - 2026)  
+**Dépôt :** [Projet GitHub](https://github.com/Project-OCR-dev/OCR-powered-by-Neural-Networks)
 
-- **Frontend** : Application web Flask avec interface responsive
-- **Backend** : Pipeline de preprocessing d'images from scratch
-- **Machine Learning** : Réseau de neurones pour la reconnaissance de caractères (EMNIST dataset)
+---
 
-Développé dans le cadre du BUT Informatique Année Spéciale (SAÉ S2 - 2026).
+### ✨ Fonctionnalités
 
-### Fonctionnalités
+#### 🎯 Fonctionnalités principales
 
-#### Actuellement implémenté
+- **Double mode de reconnaissance :**
+  - Reconnaissance de caractère isolé
+  - Reconnaissance de texte complet avec segmentation automatique
+- **Implémentation from scratch :**
+  - Pipeline de prétraitement d'images (conversion grayscale, redimensionnement, normalisation, binarisation)
+  - Segmentation de caractères par algorithmes de projection
+  - Architecture de réseau de neurones (MLP) implémentée en NumPy pur
+- **Interface web :**
+  - Interface Flask intuitive
+  - Upload et traitement d'images en temps réel
+  - Visualisation claire des résultats avec indication du mode
 
-- Upload d'images sécurisé (validation des types)
-- Conversion RGB → Grayscale from scratch
-- Conversion Image → Matrice NumPy from scratch
-- Normalisation des données (0-255 → 0-1)
-- Interface web responsive avec feedback utilisateur (Flash messages)
-- Workflow 3 pages : Upload → Processing → Results
-- Gestion d'erreurs et validation
+#### 🔧 Composants techniques
 
-#### En cours de développement
+**Prétraitement d'images :**
 
-- Redimensionnement d'images (28×28)
-- Découpage de zones d'intérêt
-- Entraînement du réseau de neurones
-- Intégration modèle ML dans Flask
+- Conversion RGB → Grayscale (moyenne pondérée manuelle)
+- Conversion Image Pillow → matrice NumPy
+- Redimensionnement Nearest Neighbor vers 32×32
+- Normalisation des pixels (0-255 → 0-1)
+- Binarisation par méthode d'Otsu (seuillage adaptatif)
+- Projection horizontale/verticale pour détection de caractères
 
-#### Prochaines étapes
+**Réseau de neurones :**
 
-- Pipeline complet de preprocessing
-- Prédiction en temps réel
-- Visualisation des résultats
-- Déploiement
+- Architecture Perceptron multicouche (MLP)
+- Entrée : 1024 neurones (pixels 32×32 normalisés)
+- Couches cachées : 128 et 64 neurones avec activation ReLU
+- Sortie : 62 classes (0-9, A-Z, a-z) avec Softmax
+- Entraînement : Rétropropagation avec SGD par mini-batchs sur EMNIST byclass
+- Précision : >85% sur jeu de test
 
-### Technologies utilisées
+**Application web :**
 
-**Backend :**
-
-- Python 3.x
-- Flask (serveur web)
-- NumPy (calculs matriciels)
-- Pillow (manipulation d'images)
-
-**Frontend :**
-
-- HTML5 / CSS3
-- JavaScript
+- Upload sécurisé avec validation de fichiers
+- Sélection du mode (caractère isolé vs. texte complet)
 - Design responsive
+- Gestion d'erreurs et feedback utilisateur
 
-**Machine Learning :**
+---
 
-- Dataset EMNIST (caractères manuscrits)
-- Réseau de neurones from scratch
+### 🚀 Démarrage rapide
 
-### Workflow utilisateur
+#### Prérequis
 
-1. **Upload** : Télécharger une image (PNG, JPG, JPEG, GIF)
-2. **Processing** : L'image est automatiquement traitée
-3. **Results** : Affichage du résultat de la prédiction
+```bash
+Python 3.8+
+pip install flask pillow numpy
+```
 
-### Approche pédagogique
+#### Installation
 
-Ce projet adopte une approche **"from scratch"** pour :
+```bash
+git clone https://github.com/Project-OCR-dev/OCR-powered-by-Neural-Networks.git
+cd OCR-powered-by-Neural-Networks
+```
 
-- Comprendre les algorithmes de traitement d'images
-- Maîtriser les structures de données (matrices, arrays)
-- Apprendre les fondamentaux du preprocessing ML
+#### Lancement de l'application
 
-**Objectif** : Développer une compréhension approfondie plutôt que d'utiliser uniquement des bibliothèques haut niveau.
+```bash
+python backend/app.py
+```
 
-### Contributeurs
+Ouvrir le navigateur à `http://localhost:5000`
 
-- **Mehdi KHATTAB** - Développement web (Flask, Frontend) et preprocessing
-- **Jounaïd MAZNI** - Machine Learning (Réseau de neurones, Entraînement)
+---
 
-**Statut :** En développement actif
+### 📁 Structure du projet
+
+OCR-powered-by-Neural-Networks/
+├── backend/ # Application web Flask
+│ ├── static/ # CSS, JS, images uploadées
+│ ├── templates/ # Templates HTML
+│ └── app.py # Point d'entrée Flask
+├── ml_model/ # Implémentation réseau de neurones
+│ ├── convolution.py # Opérations de convolution
+│ ├── forward.py # Passe avant
+│ ├── predict.py # Interface de prédiction
+│ └── params_epoch_30.pkl # Poids du modèle entraîné
+├── preprocessing/ # Pipeline de traitement d'image
+│ ├── images/ # Images de test
+│ └── image_processing.py # Fonctions de traitement
+└── docs/ # Documentation
+
+---
+
+### 🎓 Approche pédagogique
+
+Ce projet suit une philosophie **"from scratch"** pour :
+
+- **Comprendre les fondamentaux :** Saisir ce qui se passe à chaque opération au niveau pixel
+- **Maîtriser les structures de données :** Manipuler matrices, tableaux et tenseurs manuellement
+- **Apprendre l'interne du ML :** Implémenter rétropropagation et descente de gradient sans boîtes noires
+- **Débugger en profondeur :** Affronter et résoudre les problèmes de conventions de coordonnées (NumPy vs. Pillow)
+
+**Résultat :** Compréhension approfondie de l'OCR et des mécanismes des réseaux de neurones au-delà de l'usage de bibliothèques.
+
+---
+
+### ⚠️ Limitations connues
+
+- **Segmentation :** Fonctionne mieux avec caractères bien espacés ; les caractères collés ne sont pas séparés
+- **Qualité d'image :** Faible contraste, bruit ou effets visuels (ombres, couleurs, relief) dégradent la précision
+- **Jeu de caractères :** Limité aux caractères alphanumériques latins (0-9, A-Z, a-z)
+
+---
+
+### 👥 Contributeurs
+
+- **Mehdi KHATTAB** - Pipeline de prétraitement d'images, intégration Flask, interface web, déploiement
+- **Jounaïd MAZNI** - Architecture du réseau de neurones, entraînement, gestion du dataset EMNIST
+
+---
+
+### 📄 Licence
+
+Projet académique - BUT Informatique (2026)
